@@ -29,4 +29,19 @@ public class UserController {
         return user;
     }
 
+    @PutMapping
+    public User updateUser(@RequestBody User user) {
+        if (user.getEmail() == null || (user.getEmail().isEmpty() && !user.getEmail().contains("@"))) throw new ValidationException("Incorrect email format");
+        if (user.getLogin() == null || (user.getLogin().isBlank() && user.getLogin().isEmpty())) throw new ValidationException("Incorrect login format");
+        if (user.getBirthday().isAfter(Instant.now())) throw new ValidationException("Birthday cannot be in future");
+        User oldUser = users.get(user.getId());
+        if (user.getName().isEmpty()) {
+            oldUser.setName(user.getLogin());
+        } else {
+            oldUser.setName(user.getName());
+        }
+        oldUser.setEmail(user.getEmail());
+        return oldUser;
+    }
+
 }
