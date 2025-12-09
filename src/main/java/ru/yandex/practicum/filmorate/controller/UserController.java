@@ -25,6 +25,7 @@ public class UserController {
         if (user.getLogin() == null || (user.getLogin().isBlank() && user.getLogin().isEmpty())) throw new ValidationException("Incorrect login format");
         if (user.getName().isEmpty()) user.setName(user.getLogin());
         if (user.getBirthday().isAfter(Instant.now())) throw new ValidationException("Birthday cannot be in future");
+        user.setId(getNextId());
         users.put(user.getId(), user);
         return user;
     }
@@ -44,4 +45,12 @@ public class UserController {
         return oldUser;
     }
 
+    private long getNextId() {
+        long currentMaxId = users.keySet()
+                .stream()
+                .mapToLong(id -> id)
+                .max()
+                .orElse(0);
+        return ++currentMaxId;
+    }
 }
