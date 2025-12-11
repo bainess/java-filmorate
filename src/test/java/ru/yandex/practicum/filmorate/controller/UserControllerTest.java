@@ -11,7 +11,7 @@ public class UserControllerTest {
     private UserController controller;
 
     @BeforeEach
-    void SetUp() {
+    void setUp() {
         controller = new UserController();
 
     }
