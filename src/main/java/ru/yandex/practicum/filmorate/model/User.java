@@ -2,9 +2,7 @@ package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
-import lombok.ToString;
 
-import java.time.Instant;
 import java.time.LocalDate;
 
 @Data

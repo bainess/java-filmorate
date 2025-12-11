@@ -1,12 +1,8 @@
 package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.*;
-import lombok.*;
-import org.hibernate.validator.constraints.Length;
-import org.springframework.validation.annotation.Validated;
 
-import java.time.Duration;
-import java.time.Instant;
+import lombok.*;
 import java.time.LocalDate;
 
 /**
