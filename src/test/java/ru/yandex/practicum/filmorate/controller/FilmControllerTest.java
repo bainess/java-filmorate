@@ -26,10 +26,10 @@ public class FilmControllerTest {
                 .build();
 
         controller.createFilm(film);
-        Assertions.assertEquals(film.getName(),controller.getFilms().stream().findFirst().get().getName());
-        Assertions.assertEquals(film.getDescription(),controller.getFilms().stream().findFirst().get().getDescription());
-        Assertions.assertEquals(film.getReleaseDate(),controller.getFilms().stream().findFirst().get().getReleaseDate());
-        Assertions.assertEquals(film.getDuration(),controller.getFilms().stream().findFirst().get().getDuration());
+        Assertions.assertEquals(film.getName(),controller.getFilms().getBody().stream().findFirst().get().getName());
+        Assertions.assertEquals(film.getDescription(),controller.getFilms().getBody().stream().findFirst().get().getDescription());
+        Assertions.assertEquals(film.getReleaseDate(),controller.getFilms().getBody().stream().findFirst().get().getReleaseDate());
+        Assertions.assertEquals(film.getDuration(),controller.getFilms().getBody().stream().findFirst().get().getDuration());
     }
 
     @Test
@@ -42,7 +42,7 @@ public class FilmControllerTest {
                 .build();
 
         controller.createFilm(film);
-        Assertions.assertNotEquals(0,controller.getFilms().size());
+        Assertions.assertNotEquals(0,controller.getFilms().getBody().size());
     }
 
 
@@ -67,7 +67,7 @@ public class FilmControllerTest {
         controller.createFilm(film);
         controller.updateFilm(film2);
 
-        Assertions.assertEquals(film2, controller.getFilms().stream().findFirst().get());
+        Assertions.assertEquals(film2, controller.getFilms().getBody().stream().findFirst().get());
     }
 
     @Test
@@ -90,6 +90,6 @@ public class FilmControllerTest {
         controller.createFilm(film);
         controller.createFilm(film2);
 
-        Assertions.assertEquals(2, controller.getFilms().size());
+        Assertions.assertEquals(2, controller.getFilms().getBody().size());
     }
 }
