@@ -13,7 +13,6 @@ public class UserControllerTest {
     @BeforeEach
     void setUp() {
         controller = new UserController();
-
     }
 
     @Test
