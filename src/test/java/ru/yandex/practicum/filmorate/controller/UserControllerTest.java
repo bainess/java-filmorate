@@ -44,7 +44,7 @@ public class UserControllerTest {
         controller.createUser(user);
 
         User uzer = new User();
-        uzer.setId(1);
+        uzer.setId(1L);
         uzer.setBirthday(LocalDate.of(1999,3,22));
         uzer.setEmail("updated@mail.com");
         uzer.setLogin("newLogin");
@@ -64,7 +64,7 @@ public class UserControllerTest {
         user.setBirthday(LocalDate.of(1980, 12,11));
 
         User uzer = new User();
-        uzer.setId(1);
+        uzer.setId(1L);
         uzer.setBirthday(LocalDate.of(1999,3,22));
         uzer.setEmail("updated@mail.com");
         uzer.setLogin("newLogin");
