@@ -7,17 +7,17 @@ import java.time.LocalDate;
 
 @Data
 public class User {
-    long id;
+    private Long id;
 
     @Email(message = "Invalid email format")
-    String email;
+    private String email;
 
     @NotBlank(message = "Should not contain spaces")
-    String login;
+    private String login;
 
-    String name;
+    private String name;
 
     @Past(message = "Date of birth should be in the past")
-    LocalDate birthday;
+    private LocalDate birthday;
 }
 
