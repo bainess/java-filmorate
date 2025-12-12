@@ -26,7 +26,7 @@ public class UserControllerTest {
 
         controller.createUser(user);
 
-        User userSaved = controller.getUsers().stream().findFirst().get();
+        User userSaved = controller.getUsers().getBody().stream().findFirst().get();
         Assertions.assertEquals(user.getName(), userSaved.getName());
         Assertions.assertEquals(user.getEmail(), userSaved.getEmail());
         Assertions.assertEquals(user.getLogin(), userSaved.getLogin());
@@ -52,7 +52,7 @@ public class UserControllerTest {
 
         controller.updateUser(uzer);
 
-        Assertions.assertEquals(uzer, controller.getUsers().stream().findFirst().get());
+        Assertions.assertEquals(uzer, controller.getUsers().getBody().stream().findFirst().get());
     }
 
     @Test
@@ -73,6 +73,6 @@ public class UserControllerTest {
         controller.createUser(user);
         controller.createUser(uzer);
 
-        Assertions.assertEquals(2, controller.getUsers().size());
+        Assertions.assertEquals(2, controller.getUsers().getBody().size());
     }
 }

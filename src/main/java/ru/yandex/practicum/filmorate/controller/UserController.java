@@ -20,7 +20,7 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<Collection<User>> getUsers() {
-        try{
+        try {
             log.info("Users list: {}", users.size());
             return new ResponseEntity<>(users.values(), HttpStatus.OK);
         } catch (Exception e) {
