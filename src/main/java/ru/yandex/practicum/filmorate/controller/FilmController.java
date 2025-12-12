@@ -21,7 +21,7 @@ public class FilmController {
     public ResponseEntity<Collection<Film>> getFilms() {
         try {
             log.info("GET/films - Number of films: {}", films.size());
-            return new ResponseEntity<>(films.values(), HttpStatus.OK) ;
+            return new ResponseEntity<>(films.values(), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
