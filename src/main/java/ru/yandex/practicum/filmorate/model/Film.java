@@ -3,6 +3,9 @@ package ru.yandex.practicum.filmorate.model;
 import jakarta.validation.constraints.*;
 
 import lombok.*;
+import ru.yandex.practicum.filmorate.annotation.ValidReleaseDate;
+//import ru.yandex.practicum.filmorate.annotation.ValidReleaseDate;
+
 import java.time.LocalDate;
 
 /**
@@ -11,17 +14,21 @@ import java.time.LocalDate;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Film {
 
-    long id;
+    private Long id;
 
     @NotBlank
-    String name;
+    private String name;
 
     @Size(max = 200, message = "Description must be shoter than 200")
-    String description;
-    LocalDate releaseDate;
+    private String description;
+
+    @ValidReleaseDate
+    private LocalDate releaseDate;
 
     @Positive
-    int duration;
+    private Integer duration;
 }

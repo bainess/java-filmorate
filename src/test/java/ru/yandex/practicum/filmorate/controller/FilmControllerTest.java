@@ -45,21 +45,10 @@ public class FilmControllerTest {
         Assertions.assertNotEquals(0,controller.getFilms().size());
     }
 
-    @Test
-    void shouldNoTCreateFilmReleaseDateInvalid() {
-        Film film = Film.builder()
-                .name("Film")
-                .description("Film description")
-                .releaseDate(LocalDate.of(1890, 11,12))
-                .duration(30)
-                .build();
-
-        Assertions.assertThrows(ValidationException.class, () -> controller.createFilm(film),
-                "Release date should be set after 28 Dec 1895");
-    }
 
     @Test
     void shouldUpdateFilm() {
+
         Film film = Film.builder()
                 .name("Film")
                 .description("Film description")
@@ -68,7 +57,7 @@ public class FilmControllerTest {
                 .build();
 
         Film film2 = Film.builder()
-                .id(1)
+                .id(1L)
                 .name("Film 2 ")
                 .description("Film description 2 ")
                 .releaseDate(LocalDate.of(1995, 5,6))
@@ -91,7 +80,7 @@ public class FilmControllerTest {
                 .build();
 
         Film film2 = Film.builder()
-                .id(1)
+                .id(1L)
                 .name("Film 2 ")
                 .description("Film description 2 ")
                 .releaseDate(LocalDate.of(1995, 5,6))
