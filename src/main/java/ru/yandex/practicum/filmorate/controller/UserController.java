@@ -2,6 +2,8 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -17,22 +19,26 @@ public class UserController {
     private final Map<Long, User> users = new HashMap<>();
 
     @GetMapping
-    public Collection<User> getUsers() {
-        log.info("Users list: {}", users.size());
-        return users.values();
+    public ResponseEntity<Collection<User>> getUsers() {
+        try{
+            log.info("Users list: {}", users.size());
+            return new ResponseEntity<>(users.values(), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
     }
 
     @PostMapping
-    public User createUser(@Valid @RequestBody User user) {
+    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
         if (user.getName() == null) user.setName(user.getLogin());
         user.setId(getNextId());
         users.put(user.getId(), user);
         log.info("User {} created", user.getLogin());
-        return user;
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User user) {
+    public ResponseEntity<User> updateUser(@Valid @RequestBody User user) {
         if (!users.containsKey(user.getId())) {
            throw new ValidationException("User not found");
         }
@@ -51,7 +57,7 @@ public class UserController {
             oldUser.setEmail(user.getEmail());
         }
         log.info("User data updated");
-        return oldUser;
+        return new ResponseEntity<>(oldUser, HttpStatus.OK);
     }
 
     private long getNextId() {
