@@ -4,17 +4,19 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
 public class UserControllerTest {
     private UserController controller;
-    InMemoryUserStorage userStorage= new InMemoryUserStorage();
+    InMemoryUserStorage userStorage = new InMemoryUserStorage();
+    UserService userService = new UserService(userStorage);
 
     @BeforeEach
     void setUp() {
-        controller = new UserController(userStorage);
+        controller = new UserController(userStorage, userService);
     }
 
     @Test

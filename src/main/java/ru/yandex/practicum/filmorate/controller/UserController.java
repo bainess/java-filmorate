@@ -8,22 +8,43 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
     private final InMemoryUserStorage userStorage;
+    private final UserService userService;
 
     @Autowired
-    public UserController(InMemoryUserStorage userStorage) {
+    public UserController(InMemoryUserStorage userStorage, UserService userService) {
         this.userStorage = userStorage;
+        this.userService = userService;
+    }
+
+    @GetMapping("/{id}/friends")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<User>> getUserFriends(@PathVariable Long id, @RequestBody User user) {
+       Set<Long> friendsIds = userStorage.getUser(user.getId()).getFriends();
+       return ResponseEntity.of(Optional.of(userStorage.getUsers().stream().filter(user1 -> friendsIds.contains(user1.getId())).toList()));
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void addUserFriend(@PathVariable Long id,
+                              @PathVariable Long friendId) {
+        userService.setFriendship(userStorage.getUser(id), userStorage.getUser(friendId));
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void removeUserFriend(@PathVariable Long id,
+                                 @PathVariable Long friendId) {
+        userService.removeFromFriends(userStorage.getUser(id), userStorage.getUser(friendId));
     }
 
     @GetMapping
