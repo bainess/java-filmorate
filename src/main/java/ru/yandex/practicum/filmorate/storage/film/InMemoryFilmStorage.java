@@ -8,19 +8,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class InMemoryFilmStorage {
+public class InMemoryFilmStorage implements FilmStorage{
     private final Map<Long, Film> films = new HashMap<>();
 
+    @Override
     public Collection<Film> getFilms() {
         return films.values();
     }
 
+    @Override
     public Film createFilm(Film film) {
         film.setId(getNextId());
         films.put(film.getId(), film);
         return film;
     }
 
+    @Override
     public Film updateFilm(Film film) {
         Film oldfilm = films.get(film.getId());
         oldfilm.setName(film.getName());
