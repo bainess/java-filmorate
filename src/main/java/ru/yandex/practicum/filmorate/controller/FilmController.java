@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,13 +16,17 @@ import java.util.Map;
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    private final Map<Long, Film> films = new HashMap<>();
+    private final InMemoryFilmStorage filmStorage;
+
+    public FilmController(InMemoryFilmStorage filmStorage) {
+        this.filmStorage = filmStorage;
+    }
 
     @GetMapping
     public ResponseEntity<Collection<Film>> getFilms() {
         try {
-            log.info("GET/films - Number of films: {}", films.size());
-            return new ResponseEntity<>(films.values(), HttpStatus.OK);
+            log.info("GET/films - Number of films: {}", filmStorage.getFilms().size());
+            return new ResponseEntity<>(filmStorage.getFilms(), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
@@ -30,30 +35,16 @@ public class FilmController {
     @PostMapping
     public ResponseEntity<Film> createFilm(@Valid @RequestBody Film film) {
         log.info("POST/films - Creating new film: {}", film.getName());
-        film.setId(getNextId());
-        films.put(film.getId(), film);
+        Film newFilm = filmStorage.createFilm(film);
         log.info("Film {} was successfully created", film.getName());
-        return new ResponseEntity<>(film, HttpStatus.CREATED);
+        return new ResponseEntity<>(newFilm, HttpStatus.CREATED);
     }
 
     @PutMapping
     public ResponseEntity<Film> updateFilm(@Valid @RequestBody Film film) {
 
-        Film oldFilm = films.get(film.getId());
-        oldFilm.setName(film.getName());
-        oldFilm.setDuration(film.getDuration());
-        oldFilm.setDescription(film.getDescription());
-        oldFilm.setReleaseDate(film.getReleaseDate());
+        Film updatedFilm = filmStorage.updateFilm(film);
         log.info("Film was successfully updated");
-        return new ResponseEntity<>(oldFilm, HttpStatus.OK);
-    }
-
-    public long getNextId() {
-        long maxId = films.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++maxId;
+        return new ResponseEntity<>(updatedFilm, HttpStatus.OK);
     }
 }

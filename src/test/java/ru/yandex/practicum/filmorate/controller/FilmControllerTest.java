@@ -5,15 +5,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 
 import java.time.LocalDate;
 
 public class FilmControllerTest {
     private  FilmController controller;
+    InMemoryFilmStorage filmStorage = new InMemoryFilmStorage();
 
     @BeforeEach
     void setUp() {
-        controller = new FilmController();
+        controller = new FilmController(filmStorage);
     }
 
     @Test
