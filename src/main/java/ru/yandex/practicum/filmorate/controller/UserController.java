@@ -7,7 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,13 +18,17 @@ import java.util.Map;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final Map<Long, User> users = new HashMap<>();
+    private final InMemoryUserStorage userStorage;
+
+    public UserController(InMemoryUserStorage userStorage) {
+        this.userStorage = userStorage;
+    }
 
     @GetMapping
     public ResponseEntity<Collection<User>> getUsers() {
         try {
-            log.info("Users list: {}", users.size());
-            return new ResponseEntity<>(users.values(), HttpStatus.OK);
+            log.info("Users list: {}", userStorage.getUsers().size());
+            return new ResponseEntity<>(userStorage.getUsers(), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
@@ -30,42 +36,15 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
-        if (user.getName() == null) user.setName(user.getLogin());
-        user.setId(getNextId());
-        users.put(user.getId(), user);
-        log.info("User {} created", user.getLogin());
-        return new ResponseEntity<>(user, HttpStatus.CREATED);
+        User newUser = userStorage.createUser(user);
+        log.info("User {} created", newUser.getLogin());
+        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
     @PutMapping
     public ResponseEntity<User> updateUser(@Valid @RequestBody User user) {
-        if (!users.containsKey(user.getId())) {
-           throw new ValidationException("User not found");
-        }
-
-        User oldUser = users.get(user.getId());
-        if (user.getName() != null) {
-            oldUser.setName(user.getName());
-        }
-        if (!user.getLogin().isEmpty()) {
-            oldUser.setLogin(user.getLogin());
-        }
-        if (user.getBirthday() != null) {
-            oldUser.setBirthday(user.getBirthday());
-        }
-        if (user.getEmail() != null) {
-            oldUser.setEmail(user.getEmail());
-        }
+       User userUpdated = userStorage.updateUser(user);
         log.info("User data updated");
-        return new ResponseEntity<>(oldUser, HttpStatus.OK);
-    }
-
-    private long getNextId() {
-        long currentMaxId = users.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+        return new ResponseEntity<>(userUpdated, HttpStatus.OK);
     }
 }
