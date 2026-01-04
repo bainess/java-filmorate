@@ -101,6 +101,7 @@ public class FilmServiceTest {
         filmService.addLike(2L, 1L);
         filmService.addLike(3L, 1L);
 
-        Assertions.assertEquals(filmService.getPopularFilms().stream().findFirst().get().getLikes().size(), 5);
+        int count = 1;
+        Assertions.assertEquals(filmService.getPopularFilms(count).stream().findFirst().get().getLikes().size(), 5);
     }
 }

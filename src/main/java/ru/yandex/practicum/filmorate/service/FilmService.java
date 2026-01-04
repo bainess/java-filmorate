@@ -36,13 +36,13 @@ public class FilmService {
         return filmStorage.getFilm(filmId).getLikes().size();
     }
 
-    public Collection<Film> getPopularFilms() {
+    public Collection<Film> getPopularFilms(int count) {
         ComparatorByLikes comparator = new ComparatorByLikes();
         filmStorage.getFilm(1L).getLikes();
         return filmStorage.getFilms().stream()
                 .filter(film -> film.getLikes() != null)
                 .sorted(comparator)
-                .limit(10)
+                .limit(count)
                 .toList();
     }
     static class ComparatorByLikes implements Comparator<Film> {
