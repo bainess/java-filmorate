@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -29,14 +30,18 @@ public class UserController {
     @GetMapping("/{userId}/friends/common/{friendId}")
     public ResponseEntity<List<User>> getCommonFriends(@PathVariable Long userId,
                                        @PathVariable Long friendId) {
-        return new ResponseEntity<> (userService.getCommonFriends(userId, friendId), HttpStatus.OK);
+        try {
+            return new ResponseEntity<>(userService.getCommonFriends(userId, friendId), HttpStatus.OK);
+        } catch (RuntimeException e) {
+            throw new NotFoundException("User not found");
+
+        }
     }
 
     @GetMapping("/{id}/friends")
-    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<User>> getUserFriends(@PathVariable Long id, @RequestBody User user) {
        Set<Long> friendsIds = userStorage.getUser(user.getId()).getFriends();
-       return ResponseEntity.of(Optional.of(userStorage.getUsers().stream().filter(user1 -> friendsIds.contains(user1.getId())).toList()));
+       return new ResponseEntity<>(userStorage.getUsers().stream().filter(user1 -> friendsIds.contains(user1.getId())).toList(), HttpStatus.OK);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
