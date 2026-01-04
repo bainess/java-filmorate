@@ -26,6 +26,12 @@ public class UserController {
         this.userService = userService;
     }
 
+    @GetMapping("/{userId}/friends/common/{friendId}")
+    public ResponseEntity<List<User>> getCommonFriends(@PathVariable Long userId,
+                                       @PathVariable Long friendId) {
+        return new ResponseEntity<> (userService.getCommonFriends(userId, friendId), HttpStatus.OK);
+    }
+
     @GetMapping("/{id}/friends")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<User>> getUserFriends(@PathVariable Long id, @RequestBody User user) {

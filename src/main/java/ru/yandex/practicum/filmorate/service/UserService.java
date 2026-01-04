@@ -7,7 +7,9 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.fasterxml.jackson.databind.type.LogicalType.Collection;
 
@@ -18,6 +20,13 @@ public class UserService {
     @Autowired
     public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;
+    }
+
+    public List<User> getCommonFriends(Long userId, Long friendId) {
+        return userStorage.getUser(userId).getFriends().stream()
+                .filter(id -> userStorage.getUser(friendId).getFriends().contains(id))
+                .map(id -> userStorage.getUser(id))
+                .toList();
     }
 
     public Set<Long> getFriends(User user) {
