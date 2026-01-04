@@ -33,7 +33,7 @@ public class Film {
     @Positive
     private Integer duration;
 
-    private Set<Long> likes;
+    private Set<Long> likes = new HashSet<>();
 
     public Long addLike(Long id) {
         if (likes == null) {
