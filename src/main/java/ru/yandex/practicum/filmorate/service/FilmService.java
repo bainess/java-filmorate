@@ -25,7 +25,9 @@ public class FilmService {
         return filmStorage.getFilm(id);
     }
 
-    public Collection<Film> getFilms() { return filmStorage.getFilms();}
+    public Collection<Film> getFilms() {
+        return filmStorage.getFilms();
+    }
 
     public Film createFilm(Film film) {
         return filmStorage.createFilm(film);
