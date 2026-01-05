@@ -76,7 +76,7 @@ public class FilmServiceTest {
         Long filmid = 7L;
         Long userId = 1L;
         for (int i = 1; i <= 6; i++) {
-            for (int j = 7; j > 0; j-- ) {
+            for (int j = 7; j > 0; j--) {
                 filmService.addLike(userId, filmid);
                 filmid -= 1L;
             }

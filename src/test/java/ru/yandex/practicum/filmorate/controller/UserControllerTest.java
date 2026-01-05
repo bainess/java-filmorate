@@ -71,7 +71,7 @@ public class UserControllerTest {
 
         User uzer = User.builder()
                 .id(1L)
-                .birthday(LocalDate.of(1999,3,22))
+                .birthday(LocalDate.of(1999, 3,22))
                 .email("updated@mail.com")
                 .login("newLogin")
                 .name("newName")
