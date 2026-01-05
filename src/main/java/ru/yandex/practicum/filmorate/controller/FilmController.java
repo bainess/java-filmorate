@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -31,14 +32,14 @@ public class FilmController {
     }
 
     @PutMapping("/{filmId}/like/{userId}")
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     public void addLike(@PathVariable Long filmId,
                         @PathVariable Long userId) {
         filmService.addLike(userId, filmId);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     public void removeLike(@PathVariable Long filmId,
                            @PathVariable Long userId) {
         filmService.removeLike(userId, filmId);
@@ -51,12 +52,8 @@ public class FilmController {
 
     @GetMapping
     public ResponseEntity<Collection<Film>> getFilms() {
-        try {
-            log.info("GET/films - Number of films: {}", filmService.getFilms().size());
+        log.info("GET/films - Number of films: {}", filmService.getFilms().size());
             return new ResponseEntity<>(filmService.getFilms(), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
     }
 
     @PostMapping
@@ -69,7 +66,9 @@ public class FilmController {
 
     @PutMapping
     public ResponseEntity<Film> updateFilm(@Valid @RequestBody Film film) {
-
+        if(filmService.getFilm(film.getId()) == null) {
+            throw new NotFoundException("Film not found");
+        }
         Film updatedFilm = filmService.updateFilm(film);
         log.info("Film was successfully updated");
         return new ResponseEntity<>(updatedFilm, HttpStatus.OK);

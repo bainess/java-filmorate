@@ -13,7 +13,7 @@ public class InMemoryUserStorage implements UserStorage {
     private final Map<Long, User> users = new HashMap<>();
 
     public User getUser(Long id) {
-       return users.get(id);
+        return users.get(id);
     }
 
     @Override

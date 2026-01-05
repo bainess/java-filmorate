@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -17,8 +18,8 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
-    public Optional<User> getUser(Long id) {
-        return Optional.of(userStorage.getUser(id));
+    public User getUser(Long id) {
+        return userStorage.getUser(id);
     }
 
     public Collection<User> getUsers() {
@@ -37,8 +38,8 @@ public class UserService {
                 .toList();
     }
 
-    public Collection<User> getFriends(User user) {
-        Set<Long> friendsIds = userStorage.getUser(user.getId()).getFriends();
+    public Collection<User> getFriends(Long id) {
+        Set<Long> friendsIds = userStorage.getUser(id).getFriends();
         return new ArrayList<>(userStorage.getUsers().stream()
                 .filter(user1 -> friendsIds.contains(user1.getId()))
                 .toList());
@@ -48,29 +49,22 @@ public class UserService {
         return userStorage.createUser(user);
     }
 
-    public void setFriendship(User user1, User user2) {
+    public void setFriendship(Long user1, Long user2) {
         addFriend(user1, user2);
         addFriend(user2, user1);
     }
 
-    public void removeFromFriends(User user1, User user2) {
+    private Long addFriend(Long user, Long friend) {
+        return userStorage.getUser(user).setFriends(friend);
+    }
+
+    public void removeFromFriends(Long user1, Long user2) {
         removeFriend(user1, user2);
         removeFriend(user2, user1);
     }
 
-    private Long removeFriend(User user, User friend) {
-        if (!userStorage.getUser(user.getId()).getFriends().contains(friend.getId())) {
-            throw new ValidationException("User has no such friend");
-        }
-
-        userStorage.getUser(user.getId()).getFriends().remove(friend.getId());
-        return friend.getId();
-    }
-
-    private Long addFriend(User user, User friend) {
-        if (!userStorage.getUsers().contains(user) || !userStorage.getUsers().contains(friend)) {
-            throw new ValidationException("User not found");
-        }
-        return userStorage.getUser(user.getId()).setFriends(friend.getId());
+    private Long removeFriend(Long userId, Long friendId) {
+        userStorage.getUser(userId).getFriends().remove(friendId);
+        return friendId;
     }
 }

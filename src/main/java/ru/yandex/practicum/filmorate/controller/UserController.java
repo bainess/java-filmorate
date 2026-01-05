@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -30,33 +32,43 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public ResponseEntity<Collection<User>> getUserFriends(@PathVariable Long id, @RequestBody User user) {
-       Set<Long> friendsIds = userService.getUser(user.getId()).get().getFriends();
-       return new ResponseEntity<>(userService.getFriends(user), HttpStatus.OK);
+    public ResponseEntity<Collection<User>> getUserFriends(@PathVariable Long id) {
+        if (userService.getUser(id) == null) {
+            throw new NotFoundException("User was not found");
+        }
+       return new ResponseEntity<>(userService.getFriends(id), HttpStatus.OK);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
     public void addUserFriend(@PathVariable Long id,
                               @PathVariable Long friendId) {
-        userService.setFriendship(userService.getUser(id).get(), userService.getUser(friendId).get());
+        if (userService.getUser(id) == null) {
+            throw new NotFoundException("User" + id + " was not found");
+        }
+        if (userService.getUser(friendId) == null) {
+            throw new NotFoundException("User" + friendId + " was not found");
+        }
+        userService.setFriendship(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
     public void removeUserFriend(@PathVariable Long id,
                                  @PathVariable Long friendId) {
-        userService.removeFromFriends(userService.getUser(id).get(), userService.getUser(friendId).get());
+        if (userService.getUser(id) == null) {
+            throw new NotFoundException("User" + id + " was not found");
+        }
+        if (userService.getUser(friendId) == null) {
+            throw new NotFoundException("User" + friendId + " was not found");
+        }
+        userService.removeFromFriends(id, friendId);
     }
 
     @GetMapping
     public ResponseEntity<Collection<User>> getUsers() {
-        try {
-            log.info("Users list: {}", userService.getUsers().size());
+        log.info("Users list: {}", userService.getUsers().size());
             return new ResponseEntity<>(userService.getUsers(), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
     }
 
     @PostMapping
@@ -68,8 +80,8 @@ public class UserController {
 
     @PutMapping
     public ResponseEntity<Optional<User>> updateUser(@Valid @RequestBody User user) {
-        if (userService.getUser(user.getId()).isEmpty()) {
-            return new ResponseEntity<>(userService.getUser(user.getId()), HttpStatus.INTERNAL_SERVER_ERROR);
+        if (userService.getUser(user.getId()) == null) {
+            throw new NotFoundException("User not found");
         }
        Optional<User> userUpdated = userService.updateUser(user);
         log.info("User data updated");
