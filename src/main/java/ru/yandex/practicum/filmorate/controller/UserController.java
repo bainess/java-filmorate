@@ -31,7 +31,7 @@ public class UserController {
 
     @GetMapping("/{id}/friends")
     public ResponseEntity<Collection<User>> getUserFriends(@PathVariable Long id, @RequestBody User user) {
-       Set<Long> friendsIds = userService.getUser(user.getId()).getFriends();
+       Set<Long> friendsIds = userService.getUser(user.getId()).get().getFriends();
        return new ResponseEntity<>(userService.getFriends(user), HttpStatus.OK);
     }
 
@@ -39,14 +39,14 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public void addUserFriend(@PathVariable Long id,
                               @PathVariable Long friendId) {
-        userService.setFriendship(userService.getUser(id), userService.getUser(friendId));
+        userService.setFriendship(userService.getUser(id).get(), userService.getUser(friendId).get());
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
     public void removeUserFriend(@PathVariable Long id,
                                  @PathVariable Long friendId) {
-        userService.removeFromFriends(userService.getUser(id), userService.getUser(friendId));
+        userService.removeFromFriends(userService.getUser(id).get(), userService.getUser(friendId).get());
     }
 
     @GetMapping
@@ -67,8 +67,11 @@ public class UserController {
     }
 
     @PutMapping
-    public ResponseEntity<User> updateUser(@Valid @RequestBody User user) {
-       User userUpdated = userService.updateUser(user);
+    public ResponseEntity<Optional<User>> updateUser(@Valid @RequestBody User user) {
+        if (userService.getUser(user.getId()).isEmpty()) {
+            return new ResponseEntity<>(userService.getUser(user.getId()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+       Optional<User> userUpdated = userService.updateUser(user);
         log.info("User data updated");
         return new ResponseEntity<>(userUpdated, HttpStatus.OK);
     }
