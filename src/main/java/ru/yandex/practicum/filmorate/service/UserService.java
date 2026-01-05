@@ -6,10 +6,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -20,16 +17,16 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
-    public User getUser(Long id) {
-        return userStorage.getUser(id);
+    public Optional<User> getUser(Long id) {
+        return Optional.of(userStorage.getUser(id));
     }
 
     public Collection<User> getUsers() {
         return new ArrayList<>(userStorage.getUsers());
     }
 
-    public User updateUser(User user) {
-        return userStorage.updateUser(user);
+    public Optional<User> updateUser(User user) {
+        return Optional.of(userStorage.updateUser(user));
     }
 
 

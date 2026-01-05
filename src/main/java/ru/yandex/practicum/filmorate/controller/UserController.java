@@ -67,8 +67,11 @@ public class UserController {
     }
 
     @PutMapping
-    public ResponseEntity<User> updateUser(@Valid @RequestBody User user) {
-       User userUpdated = userService.updateUser(user);
+    public ResponseEntity<Optional<User>> updateUser(@Valid @RequestBody User user) {
+        if (userService.getUser(user.getId()).isEmpty()) {
+            return new ResponseEntity<>(userService.getUser(user.getId()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+       Optional<User> userUpdated = userService.updateUser(user);
         log.info("User data updated");
         return new ResponseEntity<>(userUpdated, HttpStatus.OK);
     }
