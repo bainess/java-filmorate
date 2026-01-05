@@ -6,6 +6,8 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -18,6 +20,19 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
+    public User getUser(Long id) {
+        return userStorage.getUser(id);
+    }
+
+    public Collection<User> getUsers() {
+        return new ArrayList<>(userStorage.getUsers());
+    }
+
+    public User updateUser(User user) {
+        return userStorage.updateUser(user);
+    }
+
+
     public List<User> getCommonFriends(Long userId, Long friendId) {
         return userStorage.getUser(userId).getFriends().stream()
                 .filter(id -> userStorage.getUser(friendId).getFriends().contains(id))
@@ -25,8 +40,15 @@ public class UserService {
                 .toList();
     }
 
-    public Set<Long> getFriends(User user) {
-        return userStorage.getUser(user.getId()).getFriends();
+    public Collection<User> getFriends(User user) {
+        Set<Long> friendsIds = userStorage.getUser(user.getId()).getFriends();
+        return new ArrayList<>(userStorage.getUsers().stream()
+                .filter(user1 -> friendsIds.contains(user1.getId()))
+                .toList());
+    }
+
+    public User createUser(User user) {
+        return userStorage.createUser(user);
     }
 
     public void setFriendship(User user1, User user2) {
@@ -49,8 +71,6 @@ public class UserService {
     }
 
     private Long addFriend(User user, User friend) {
-        boolean a = userStorage.getUsers().contains(user);
-        boolean b = userStorage.getUsers().contains(friend);
         if (!userStorage.getUsers().contains(user) || !userStorage.getUsers().contains(friend)) {
             throw new ValidationException("User not found");
         }

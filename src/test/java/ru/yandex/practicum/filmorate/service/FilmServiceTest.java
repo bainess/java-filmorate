@@ -73,35 +73,18 @@ public class FilmServiceTest {
 
     @Test
     void shouldSortFilmsByLikes() {
-        //film 1
-        filmService.addLike(1L, 1L);
-        //film 2
-        filmService.addLike(1L, 2L);
-        filmService.addLike(2L, 2L);
-        // film 3
-        filmService.addLike(1L, 3L);
-        filmService.addLike(2L, 3L);
-        filmService.addLike(3L, 3L);
-        // film 4
-        filmService.addLike(1L, 4L);
-        filmService.addLike(2L, 4L);
-        filmService.addLike(3L, 4L);
-        filmService.addLike(4L, 4L);
-        filmService.addLike(5L, 4L);
-        // film 5
-        filmService.addLike(1L, 5L);
-        filmService.addLike(1L, 5L);
-        filmService.addLike(1L, 5L);
-        filmService.addLike(1L, 5L);
-        // film 6
-        filmService.addLike(1L, 6L);
-        filmService.addLike(2L, 6L);
-        // film 7
-        filmService.addLike(1L, 1L);
-        filmService.addLike(2L, 1L);
-        filmService.addLike(3L, 1L);
+        Long filmid = 7L;
+        Long userId = 1L;
+        for (int i = 1; i <= 6; i++) {
+            for (int j = 7; j > 0; j-- ) {
+                filmService.addLike(userId, filmid);
+                filmid -= 1L;
+            }
+            userId += 1L;
+            filmid = 7L;
+        }
 
         int count = 1;
-        Assertions.assertEquals(filmService.getPopularFilms(count).stream().findFirst().get().getLikes().size(), 5);
+        Assertions.assertEquals(6, filmService.getPopularFilms(count).stream().findFirst().get().getLikes().size());
     }
 }

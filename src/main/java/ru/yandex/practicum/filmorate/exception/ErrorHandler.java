@@ -15,4 +15,9 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage(), "not found");
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidationExcweption(final ValidationException e) {
+        return new ErrorResponse(e.getMessage(), "Data not correct");
+    }
 }

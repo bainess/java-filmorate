@@ -19,18 +19,16 @@ import java.util.Collection;
 @Validated
 @RequestMapping("/films")
 public class FilmController {
-    private final FilmStorage filmStorage;
     private final FilmService filmService;
 
     @Autowired
-    public FilmController(FilmStorage filmStorage, FilmService filmService) {
-        this.filmStorage = filmStorage;
+    public FilmController(FilmService filmService) {
         this.filmService = filmService;
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Film> getFilm(@PathVariable Long id) {
-        return new ResponseEntity<>(filmStorage.getFilm(id), HttpStatus.OK);
+        return new ResponseEntity<>(filmService.getFilm(id), HttpStatus.OK);
     }
 
     @PutMapping("/{filmId}/like/{userId}")
@@ -55,8 +53,8 @@ public class FilmController {
     @GetMapping
     public ResponseEntity<Collection<Film>> getFilms() {
         try {
-            log.info("GET/films - Number of films: {}", filmStorage.getFilms().size());
-            return new ResponseEntity<>(filmStorage.getFilms(), HttpStatus.OK);
+            log.info("GET/films - Number of films: {}", filmService.getFilms().size());
+            return new ResponseEntity<>(filmService.getFilms(), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
@@ -65,7 +63,7 @@ public class FilmController {
     @PostMapping
     public ResponseEntity<Film> createFilm(@Valid @RequestBody Film film) {
         log.info("POST/films - Creating new film: {}", film.getName());
-        Film newFilm = filmStorage.createFilm(film);
+        Film newFilm = filmService.createFilm(film);
         log.info("Film {} was successfully created", film.getName());
         return new ResponseEntity<>(newFilm, HttpStatus.CREATED);
     }
@@ -73,7 +71,7 @@ public class FilmController {
     @PutMapping
     public ResponseEntity<Film> updateFilm(@Valid @RequestBody Film film) {
 
-        Film updatedFilm = filmStorage.updateFilm(film);
+        Film updatedFilm = filmService.updateFilm(film);
         log.info("Film was successfully updated");
         return new ResponseEntity<>(updatedFilm, HttpStatus.OK);
     }
