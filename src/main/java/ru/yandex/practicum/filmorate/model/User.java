@@ -24,7 +24,7 @@ public class User {
     @Past(message = "Date of birth should be in the past")
     private LocalDate birthday;
 
-    private Set<Long> friends;
+    private Set<Long> friends; // при инициализации коллекции в поле, падает NullPointerException
 
     public Long setFriends(Long id) {
         if (friends == null) {
