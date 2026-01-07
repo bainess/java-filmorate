@@ -23,6 +23,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User createUser(User user) {
+        User newUser = new User();
         if (user.getId() != null && !users.containsKey(user.getId())) {
             throw new ValidationException("User not found");
         }
