@@ -36,9 +36,6 @@ public class Film {
     private Set<Long> likes = new HashSet<>();
 
     public Long addLike(Long id) {
-        if (likes == null) {
-            likes = new HashSet<>(); // без этой проверки не происходит инициализации likes в тестах из папки проекта
-        }
         likes.add(id);
         return id;
     }

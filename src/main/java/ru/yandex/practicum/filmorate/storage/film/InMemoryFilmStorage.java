@@ -3,10 +3,7 @@ package ru.yandex.practicum.filmorate.storage.film;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
@@ -24,9 +21,16 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film createFilm(Film film) {
-        film.setId(getNextId());
-        films.put(film.getId(), film);
-        return film;
+        Film newFilm = Film.builder()
+                .name(film.getName())
+                .duration(film.getDuration())
+                .releaseDate(film.getReleaseDate())
+                .description(film.getDescription())
+                .likes(new HashSet<>())
+                .build();
+        newFilm.setId(getNextId());
+        films.put(newFilm.getId(), newFilm);
+        return newFilm;
     }
 
     @Override
