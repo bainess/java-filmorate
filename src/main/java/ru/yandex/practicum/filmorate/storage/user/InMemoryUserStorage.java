@@ -30,6 +30,7 @@ public class InMemoryUserStorage implements UserStorage {
                 .login(user.getLogin())
                 .birthday(user.getBirthday())
                 .friends(new HashSet<>())
+                .friends(new HashSet<>())
                 .build();
         if (user.getId() != null && !users.containsKey(user.getId())) {
             throw new ValidationException("User not found");

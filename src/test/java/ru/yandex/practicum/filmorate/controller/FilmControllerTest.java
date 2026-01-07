@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 
 public class FilmControllerTest {
     private  FilmController controller;
@@ -31,6 +32,7 @@ public class FilmControllerTest {
                 .description("Film description")
                 .releaseDate(LocalDate.now())
                 .duration(30)
+                .likes(new HashSet<>())
                 .build();
 
         controller.createFilm(film);
@@ -47,6 +49,7 @@ public class FilmControllerTest {
                 .description("Film description")
                 .releaseDate(LocalDate.now())
                 .duration(30)
+                .likes(new HashSet<>())
                 .build();
 
         controller.createFilm(film);
@@ -70,6 +73,7 @@ public class FilmControllerTest {
                 .description("Film description 2 ")
                 .releaseDate(LocalDate.of(1995, 5,6))
                 .duration(90)
+                .likes(new HashSet<>())
                 .build();
 
         controller.createFilm(film);
