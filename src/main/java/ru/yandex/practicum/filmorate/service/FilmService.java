@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -44,11 +45,23 @@ public class FilmService {
     }
 
     public int addLike(Long userId, Long filmId) {
+        if (filmStorage.getFilm(filmId) == null) {
+            throw new NotFoundException("Film " + filmId + " not found");
+        }
+        if (userStorage.getUser(userId) == null) {
+            throw new NotFoundException("User " + userId + " not found");
+        }
         filmStorage.getFilm(filmId).addLike(userId);
         return filmStorage.getFilm(filmId).getLikes().size();
     }
 
     public int removeLike(Long userId, Long filmId) {
+        if (filmStorage.getFilm(filmId) == null) {
+            throw new NotFoundException("Film " + filmId + " not found");
+        }
+        if (userStorage.getUser(userId) == null) {
+            throw new NotFoundException("User " + userId + " not found");
+        }
         filmStorage.getFilm(filmId).getLikes().remove(userId);
         return filmStorage.getFilm(filmId).getLikes().size();
     }
