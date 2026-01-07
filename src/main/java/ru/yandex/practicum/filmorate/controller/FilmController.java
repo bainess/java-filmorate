@@ -28,7 +28,9 @@ public class FilmController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Film> getFilm(@PathVariable Long id) {
+        log.info("Film with " + filmService.getFilm(id) + " was found");
         return new ResponseEntity<>(filmService.getFilm(id), HttpStatus.OK);
+
     }
 
     @PutMapping("/{filmId}/like/{userId}")
@@ -36,6 +38,7 @@ public class FilmController {
     public void addLike(@PathVariable Long filmId,
                         @PathVariable Long userId) {
         filmService.addLike(userId, filmId);
+        log.info("Film " + filmId + " got like from " + userId);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
