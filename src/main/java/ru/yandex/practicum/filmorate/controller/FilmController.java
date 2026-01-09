@@ -69,9 +69,6 @@ public class FilmController {
 
     @PutMapping
     public ResponseEntity<Film> updateFilm(@Valid @RequestBody Film film) {
-        if (filmService.getFilm(film.getId()) == null) {
-            throw new NotFoundException("Film not found");
-        }
         Film updatedFilm = filmService.updateFilm(film);
         log.info("Film was successfully updated");
         return new ResponseEntity<>(updatedFilm, HttpStatus.OK);

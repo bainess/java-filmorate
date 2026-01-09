@@ -32,22 +32,13 @@ public class UserController {
 
     @GetMapping("/{id}/friends")
     public ResponseEntity<Collection<User>> getUserFriends(@PathVariable Long id) {
-        if (userService.getUser(id) == null) {
-            throw new NotFoundException("User was not found");
-        }
-       return new ResponseEntity<>(userService.getFriends(id), HttpStatus.OK);
+        return new ResponseEntity<>(userService.getFriends(id), HttpStatus.OK);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
     public void addUserFriend(@PathVariable Long id,
                               @PathVariable Long friendId) {
-        if (userService.getUser(id) == null) {
-            throw new NotFoundException("User" + id + " was not found");
-        }
-        if (userService.getUser(friendId) == null) {
-            throw new NotFoundException("User" + friendId + " was not found");
-        }
         userService.setFriendship(id, friendId);
     }
 
@@ -55,12 +46,6 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public void removeUserFriend(@PathVariable Long id,
                                  @PathVariable Long friendId) {
-        if (userService.getUser(id) == null) {
-            throw new NotFoundException("User" + id + " was not found");
-        }
-        if (userService.getUser(friendId) == null) {
-            throw new NotFoundException("User" + friendId + " was not found");
-        }
         userService.removeFromFriends(id, friendId);
     }
 
@@ -79,10 +64,7 @@ public class UserController {
 
     @PutMapping
     public ResponseEntity<Optional<User>> updateUser(@Valid @RequestBody User user) {
-        if (userService.getUser(user.getId()) == null) {
-            throw new NotFoundException("User not found");
-        }
-       Optional<User> userUpdated = userService.updateUser(user);
+        Optional<User> userUpdated = userService.updateUser(user);
         log.info("User data updated");
         return new ResponseEntity<>(userUpdated, HttpStatus.OK);
     }
