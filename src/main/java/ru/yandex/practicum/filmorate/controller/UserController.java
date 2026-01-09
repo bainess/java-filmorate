@@ -2,70 +2,69 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+
+import java.util.*;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final Map<Long, User> users = new HashMap<>();
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @GetMapping("/{userId}/friends/common/{friendId}")
+    public ResponseEntity<List<User>> getCommonFriends(@PathVariable Long userId,
+                                       @PathVariable Long friendId) {
+            return new ResponseEntity<>(userService.getCommonFriends(userId, friendId), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/friends")
+    public ResponseEntity<Collection<User>> getUserFriends(@PathVariable Long id) {
+        return new ResponseEntity<>(userService.getFriends(id), HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void addUserFriend(@PathVariable Long id,
+                              @PathVariable Long friendId) {
+        userService.setFriendship(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void removeUserFriend(@PathVariable Long id,
+                                 @PathVariable Long friendId) {
+        userService.removeFromFriends(id, friendId);
+    }
 
     @GetMapping
     public ResponseEntity<Collection<User>> getUsers() {
-        try {
-            log.info("Users list: {}", users.size());
-            return new ResponseEntity<>(users.values(), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
+        log.info("Users list: {}", userService.getUsers().size());
+            return new ResponseEntity<>(userService.getUsers(), HttpStatus.OK);
     }
 
     @PostMapping
     public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
-        if (user.getName() == null) user.setName(user.getLogin());
-        user.setId(getNextId());
-        users.put(user.getId(), user);
-        log.info("User {} created", user.getLogin());
-        return new ResponseEntity<>(user, HttpStatus.CREATED);
+        User newUser = userService.createUser(user);
+        log.info("User {} created", newUser.getLogin());
+        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
     @PutMapping
-    public ResponseEntity<User> updateUser(@Valid @RequestBody User user) {
-        if (!users.containsKey(user.getId())) {
-           throw new ValidationException("User not found");
-        }
-
-        User oldUser = users.get(user.getId());
-        if (user.getName() != null) {
-            oldUser.setName(user.getName());
-        }
-        if (!user.getLogin().isEmpty()) {
-            oldUser.setLogin(user.getLogin());
-        }
-        if (user.getBirthday() != null) {
-            oldUser.setBirthday(user.getBirthday());
-        }
-        if (user.getEmail() != null) {
-            oldUser.setEmail(user.getEmail());
-        }
+    public ResponseEntity<Optional<User>> updateUser(@Valid @RequestBody User user) {
+        Optional<User> userUpdated = userService.updateUser(user);
         log.info("User data updated");
-        return new ResponseEntity<>(oldUser, HttpStatus.OK);
-    }
-
-    private long getNextId() {
-        long currentMaxId = users.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+        return new ResponseEntity<>(userUpdated, HttpStatus.OK);
     }
 }
