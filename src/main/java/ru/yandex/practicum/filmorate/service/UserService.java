@@ -84,4 +84,6 @@ public class UserService {
         userStorage.getUser(userId).getFriends().remove(friendId);
         return friendId;
     }
+
+
 }

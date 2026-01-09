@@ -7,12 +7,10 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
-import ru.yandex.practicum.filmorate.model.comparator.FilmComparatorByLikes;
 import java.util.*;
 
 @Service
 public class FilmService {
-    FilmComparatorByLikes comparator = new FilmComparatorByLikes();
     private FilmStorage filmStorage;
     private UserStorage userStorage;
 
@@ -71,9 +69,7 @@ public class FilmService {
 
     public Collection<Film> getPopularFilms(int count) {
         return filmStorage.getFilms().stream()
-                // без фильтра фильмы без лайков при сравнении падают в NullPointerException
-                .filter(film -> film.getLikes() != null)
-                .sorted(comparator)
+                .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
                 .limit(count)
                 .toList();
     }
