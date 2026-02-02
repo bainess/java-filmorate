@@ -6,3 +6,4 @@ java-filmorate:
       org:
         zalando:
           logbook: TRACE
+
