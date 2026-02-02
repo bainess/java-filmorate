@@ -17,7 +17,7 @@ import java.util.Collection;
 @RestController
 @Validated
 @RequestMapping("/films")
-public class FilmController {
+public class    FilmController {
     private final FilmService filmService;
 
     @Autowired

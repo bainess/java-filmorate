@@ -7,3 +7,15 @@ java-filmorate:
         zalando:
           logbook: TRACE
 
+spring:
+  datasource:
+    username: user
+    password: password
+    driver-class-name: orf.h2.Driver
+    url: jdbc:h2:file:./db/fimorate
+  sql:
+    init:
+      mode: always
+  h2:
+    console:
+      enabled: true
