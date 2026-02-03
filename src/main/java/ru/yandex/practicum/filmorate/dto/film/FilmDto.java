@@ -1,24 +1,17 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.dto.film;
 
-import jakarta.validation.constraints.*;
-
-import lombok.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
 import ru.yandex.practicum.filmorate.annotation.ValidReleaseDate;
 
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Film.
- */
-
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class Film {
-
+public class FilmDto {
     private Long id;
 
     @NotBlank
@@ -40,9 +33,4 @@ public class Film {
     private String genre;
 
     private Set<Long> likes = new HashSet<>();
-
-    public Long addLike(Long id) {
-        likes.add(id);
-        return id;
-    }
 }
