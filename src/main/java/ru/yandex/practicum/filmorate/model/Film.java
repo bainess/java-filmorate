@@ -24,7 +24,7 @@ public class Film {
     @NotBlank
     private String name;
 
-    @Size(max = 200, message = "Description must be shoter than 200")
+    @Size(max = 500, message = "Description must be shoter than 200")
     private String description;
 
     @ValidReleaseDate
@@ -32,6 +32,12 @@ public class Film {
 
     @Positive
     private Integer duration;
+
+    @NotBlank
+    private String rating;
+
+    @NotBlank
+    private String genre;
 
     private Set<Long> likes = new HashSet<>();
 
