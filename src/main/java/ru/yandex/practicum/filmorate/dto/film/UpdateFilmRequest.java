@@ -16,9 +16,10 @@ import java.util.List;
 import java.util.Set;
 
 @Data
-public class FilmDto {
+public class UpdateFilmRequest {
+
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Long id;
+    private long id;
 
     @NotBlank
     private String name;
@@ -32,8 +33,39 @@ public class FilmDto {
     @Positive
     private Integer duration;
 
+
     private MpaName mpa;
+
+
     private List<Genre> genres = new ArrayList<>();
 
     private Set<Long> likes = new HashSet<>();
+
+    public boolean hasName() {
+        return ! (name == null || name.isBlank());
+    }
+
+    public boolean hasDescription() {
+        return ! (name == null || name.isBlank());
+    }
+
+    public boolean hasReleaseDate() {
+        return ! (releaseDate == null);
+    }
+
+    public boolean hasDuration() {
+        return ! (duration == null || duration < 0);
+    }
+
+    public boolean hasMpa() {
+        return ! (mpa == null);
+    }
+
+    public boolean hasGenre() {
+        return ! (genres.isEmpty());
+    }
+
+    public boolean hasLikes() {
+        return ! (likes.isEmpty());
+    }
 }

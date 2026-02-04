@@ -6,7 +6,9 @@ import lombok.*;
 import ru.yandex.practicum.filmorate.annotation.ValidReleaseDate;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -24,7 +26,7 @@ public class Film {
     @NotBlank
     private String name;
 
-    @Size(max = 500, message = "Description must be shoter than 200")
+    @Size(max = 200, message = "Description must be shoter than 200")
     private String description;
 
     @ValidReleaseDate
@@ -33,12 +35,8 @@ public class Film {
     @Positive
     private Integer duration;
 
-    @NotBlank
-    private String rating;
-
-    @NotBlank
-    private String genre;
-
+    private MpaName mpa;
+    private List<Genre> genres = new ArrayList<>();
     private Set<Long> likes = new HashSet<>();
 
     public Long addLike(Long id) {

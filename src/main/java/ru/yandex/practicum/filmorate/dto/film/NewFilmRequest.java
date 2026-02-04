@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.dto.film;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
@@ -11,19 +10,15 @@ import ru.yandex.practicum.filmorate.model.MpaName;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Data
-public class FilmDto {
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Long id;
+public class NewFilmRequest {
 
     @NotBlank
     private String name;
 
-    @Size(max = 500, message = "Description must be shoter than 200")
+    @Size(max = 200, message = "Description must be shoter than 200")
     private String description;
 
     @ValidReleaseDate
@@ -32,8 +27,7 @@ public class FilmDto {
     @Positive
     private Integer duration;
 
-    private MpaName mpa;
     private List<Genre> genres = new ArrayList<>();
 
-    private Set<Long> likes = new HashSet<>();
+    private MpaName mpa;
 }

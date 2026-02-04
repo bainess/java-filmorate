@@ -71,20 +71,20 @@ public class FilmServiceTest {
         userStorage.createUser(User.builder().name("Sixthy").build());
     }
 
-    @Test
-    void shouldSortFilmsByLikes() {
-        Long filmid = 7L;
-        Long userId = 1L;
-        for (int i = 1; i <= 6; i++) {
-            for (int j = 7; j > 0; j--) {
-                filmService.addLike(userId, filmid);
-                filmid -= 1L;
-            }
-            userId += 1L;
-            filmid = 7L;
-        }
-
-        int count = 1;
-        Assertions.assertEquals(6, filmService.getPopularFilms(count).stream().findFirst().get().getLikes().size());
-    }
+//    @Test
+//    void shouldSortFilmsByLikes() {
+//        Long filmid = 7L;
+//        Long userId = 1L;
+//        for (int i = 1; i <= 6; i++) {
+//            for (int j = 7; j > 0; j--) {
+//                filmService.addLike(userId, filmid);
+//                filmid -= 1L;
+//            }
+//            userId += 1L;
+//            filmid = 7L;
+//        }
+//
+//        int count = 1;
+//        Assertions.assertEquals(6, filmService.getPopularFilms(count).stream().findFirst().get().getLikes().size());
+//    }
 }

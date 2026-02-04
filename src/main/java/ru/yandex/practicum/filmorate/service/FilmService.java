@@ -2,12 +2,17 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.film.FilmDto;
+import ru.yandex.practicum.filmorate.dto.film.NewFilmRequest;
+import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
@@ -20,24 +25,33 @@ public class FilmService {
         this.userStorage = userStorage;
     }
 
-    public Film getFilm(Long id) {
-        return filmStorage.getFilm(id);
+    public Collection<FilmDto> getFilms() {
+        return filmStorage.getFilms().stream()
+                .map(FilmMapper::mapToFilmDto)
+                .collect(Collectors.toList());
     }
 
-    public Collection<Film> getFilms() {
-        return filmStorage.getFilms();
+    public FilmDto createFilm(NewFilmRequest request) {
+        Film film = FilmMapper.mapToFilm(request);
+        film = filmStorage.createFilm(film);
+        return FilmMapper.mapToFilmDto(film);
     }
 
-    public Film createFilm(Film film) {
-        return filmStorage.createFilm(film);
+    public FilmDto getFilmById(Long id) {
+        return filmStorage.getFilm(id)
+                .map(FilmMapper::mapToFilmDto)
+                .orElseThrow(() -> new NotFoundException("Film not found"));
     }
 
-    public Film updateFilm(Film film) {
-        if (filmStorage.getFilm(film.getId()) == null) {
-            throw new NotFoundException("Film not found");
-        }
-        return filmStorage.updateFilm(film);
+    public FilmDto updateFilm(Long id, UpdateFilmRequest request) {
+        Film updatedFilm = filmStorage.getFilm(id)
+                .map(film -> FilmMapper.updateFilmFields(request, film))
+                .orElseThrow(() -> new NotFoundException("Film not found"));
+        updatedFilm = filmStorage.updateFilm(updatedFilm);
+        return FilmMapper.mapToFilmDto(updatedFilm);
     }
+
+/*
 
     public List<User> getLikes(Long id) {
         Set<Long> usersLiked = filmStorage.getFilm(id).getLikes();
@@ -73,6 +87,8 @@ public class FilmService {
                 .limit(count)
                 .toList();
     }
+
+ */
 }
 
 
