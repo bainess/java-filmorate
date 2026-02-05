@@ -42,14 +42,15 @@ public class    FilmController {
         return new ResponseEntity<>(newFilm, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<FilmDto> getFilm(@PathVariable Long id) {
-        log.info("Film with " + filmService.getFilmById(id) + " was found");
-        return new ResponseEntity<>(filmService.getFilmById(id), HttpStatus.OK);
+    @GetMapping("/{filmId}")
+    public ResponseEntity<FilmDto> getFilm(@PathVariable("filmId") Long filmId) {
+        log.info("Film with " + filmService.getFilmById(filmId) + " was found");
+        return new ResponseEntity<>(filmService.getFilmById(filmId), HttpStatus.OK);
     }
 
     @PutMapping
     public ResponseEntity<FilmDto> updateFilm(@Valid @RequestBody UpdateFilmRequest request) {
+        log.info("Request film update{}", request);
         FilmDto updatedFilm = filmService.updateFilm(request.getId(), request);
         log.info("Film was successfully updated");
         return new ResponseEntity<>(updatedFilm, HttpStatus.OK);

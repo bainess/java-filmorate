@@ -20,5 +20,4 @@ public class MpaStorage extends BaseRepository<MpaName> {
     public List<Integer> getRatings() {
         return findMany(FIND_MPA_QUERY).stream().map(MpaName::getId).collect(Collectors.toList());
     }
-
 }

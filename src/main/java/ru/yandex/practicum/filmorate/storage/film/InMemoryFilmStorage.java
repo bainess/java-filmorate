@@ -10,7 +10,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> films = new HashMap<>();
 
     @Override
-    public Optional<Film> getFilm(Long id) {
+    public Optional<Film> findFilm(Long id) {
         return Optional.of(films.get(id));
     }
 

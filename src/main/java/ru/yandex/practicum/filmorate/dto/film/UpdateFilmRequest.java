@@ -18,7 +18,6 @@ import java.util.Set;
 @Data
 public class UpdateFilmRequest {
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private long id;
 
     @NotBlank

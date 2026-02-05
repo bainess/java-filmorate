@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.BaseRepository;
-import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -20,14 +19,17 @@ import java.util.Optional;
 public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
     private final MpaStorage mpaStorage;
     private final GenreStorage genreStorage;
-    private static final String FIND_BY_ID_QUERY = "SELECT * FROM films WHERE id = ?";
-    private static final String FIND_ALL_QUERY = "SELECT * FROM films LEFT JOIN films_genre ON" +
-        "films.id = film_genre.film_id";
+    private static final String FIND_BY_ID_QUERY = "SELECT * FROM films LEFT JOIN films_genre " +
+            "ON films.id = films_genre.film_id LEFT JOIN films_ratings AS fr ON films.id = fr.film_id WHERE films.id=? ";
+    private static final String FIND_ALL_QUERY = "SELECT * FROM films LEFT JOIN films_genre" +
+        " ON films.id = films_genre.film_id LEFT JOIN films_ratings AS fr ON films.id = fr.film_id";
     private static final String INSERT_QUERY = "INSERT INTO films (name, description, release_date, duration)" +
             "VALUES (?, ?, ?, ?)";
     private static final String INSERT_TO_FILM_GENRE = "INSERT INTO films_genre(film_id, genre_id) VALUES (?, ?)";
-
-
+    private static final String INSERT_TO_FILM_RATING = "INSERT INTO films_ratings(film_id, mpa_name) VALUES (?, ?)";
+    private static final String UPDATE_FILM = "UPDATE films SET name=?, description=?, release_date=?, duration=? WHERE id=?";
+    private static final String UPDATE_FILM_RATING = "UPDATE films_ratings SET mpa_name=? WHERE film_id=?";
+    private static final String UPDATE_FILM_GENRE = "UPDATE films_genre SET genre_id=? WHERE film_id=?";
     public DbFilmStorage(JdbcTemplate jdbc, RowMapper<Film> filmMapper, MpaStorage mpaStorage, GenreStorage genreStorage) {
         super(jdbc, filmMapper);
         this.mpaStorage = mpaStorage;
@@ -66,14 +68,38 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
             }
         }
 
+        if (film.getMpa() != null) {
+            insert(
+                    INSERT_TO_FILM_RATING,
+                    film.getId(),
+                    film.getMpa().getId()
+            );
+        }
         return film;
     }
 
-    public Optional<Film> getFilm(Long id) {
+    public Optional<Film> findFilm(Long id) {
         return findOne(FIND_BY_ID_QUERY, id);
     };
 
     public Film updateFilm(Film film) {
+        update(
+                UPDATE_FILM,
+                film.getName(),
+                film.getDescription(),
+                film.getReleaseDate(),
+                film.getDuration(),
+                film.getId()
+        );
+        update(
+                UPDATE_FILM_RATING,
+                film.getMpa().getId(),
+                film.getId()
+        );
+//        update(
+//                UPDATE_FILM_GENRE,
+//
+//        );
         return film;
     };
 

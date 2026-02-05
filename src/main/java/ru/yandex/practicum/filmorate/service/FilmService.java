@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.util.*;
@@ -38,13 +37,14 @@ public class FilmService {
     }
 
     public FilmDto getFilmById(Long id) {
-        return filmStorage.getFilm(id)
+        return filmStorage.findFilm(id)
                 .map(FilmMapper::mapToFilmDto)
                 .orElseThrow(() -> new NotFoundException("Film not found"));
     }
 
     public FilmDto updateFilm(Long id, UpdateFilmRequest request) {
-        Film updatedFilm = filmStorage.getFilm(id)
+        Optional<Film> updatedFilm1 = filmStorage.findFilm(id);
+        Film updatedFilm = filmStorage.findFilm(id)
                 .map(film -> FilmMapper.updateFilmFields(request, film))
                 .orElseThrow(() -> new NotFoundException("Film not found"));
         updatedFilm = filmStorage.updateFilm(updatedFilm);
