@@ -36,7 +36,7 @@ public class UserMapper {
         return dto;
     }
 
-    public static User UpdateUserFileds(UpdateUserRequest request, User user) {
+    public static User UpdateUserFields(UpdateUserRequest request, User user) {
         if (request.getName() != null) {
             user.setName(request.getName());
         }
