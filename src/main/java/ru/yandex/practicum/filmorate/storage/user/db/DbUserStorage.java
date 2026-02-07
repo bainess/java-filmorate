@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.UserFriend;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.sql.PreparedStatement;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -71,7 +72,7 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
     private static final String UPDATE_USER = "UPDATE users SET name=?, login=?, email=?, birthday=? WHERE id=?";
     private static final String INSERT_FRIEND = "INSERT INTO user_friends(user_id, friend_id) VALUES (?, ?)";
     private static final String FIND_USER_FRIENDS = "SELECT * FROM user_friends WHERE user_id = ?";
-
+    private static final String REMOVE_FROM_FRIENDS_QUERY = "DELETE FROM user_friends WHERE user_id = ? AND friend_id = ?";
     public DbUserStorage(JdbcTemplate jdbc, RowMapper<User> mapper) {
         super(jdbc, mapper);
     }
@@ -132,5 +133,13 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
                 friend
         );
         return friend;
+    }
+
+    public void removeFromFriends(Long userId, Long friendId) {
+        delete(
+                REMOVE_FROM_FRIENDS_QUERY,
+                userId,
+                friendId
+        );
     }
 }

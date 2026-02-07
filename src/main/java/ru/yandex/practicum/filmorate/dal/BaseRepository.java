@@ -36,6 +36,11 @@ public class BaseRepository<T>{
         return rowsDeleted > 0;
     }
 
+    protected boolean delete(String query, long id, Long friendId) {
+        int rowsDeleted = jdbc.update(query, id, friendId);
+        return rowsDeleted > 0;
+    }
+
     protected void update(String query, Object... params) {
         int rowsUpdated = jdbc.update(query, params);
         if (rowsUpdated == 0) {

@@ -1,10 +1,8 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.UserFriend;
 
 import java.util.*;
 
@@ -60,9 +58,9 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Long saveFriend(Long user_id, Long friend) {
+    public Long saveFriend(Long userId, Long friendId) {
 
-        return users.get(user_id).addFriendToList(friend);
+        return users.get(userId).addFriendToList(friendId);
     }
 
     private long getNextId() {
@@ -72,5 +70,10 @@ public class InMemoryUserStorage implements UserStorage {
                 .max()
                 .orElse(0);
         return ++currentMaxId;
+    }
+
+    public void removeFromFriends(Long userId, Long friendId) {
+        removeFromFriends(userId,friendId);
+        removeFromFriends(userId, friendId);
     }
 }

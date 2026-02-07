@@ -38,7 +38,7 @@ public class UpdateFilmRequest {
 
     private List<Genre> genres = new ArrayList<>();
 
-    private Set<Long> likes = new HashSet<>();
+    private Integer likes;
 
     public boolean hasName() {
         return ! (name == null || name.isBlank());
@@ -65,6 +65,6 @@ public class UpdateFilmRequest {
     }
 
     public boolean hasLikes() {
-        return ! (likes.isEmpty());
+        return ! (likes == null);
     }
 }

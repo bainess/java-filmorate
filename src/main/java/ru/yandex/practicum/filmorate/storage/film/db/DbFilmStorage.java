@@ -20,41 +20,45 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
     private final MpaStorage mpaStorage;
     private final GenreStorage genreStorage;
     String FIND_BY_ID_QUERY = "SELECT \n" +
-            "    films.id, \n" +
-            "    films.name, \n" +
-            "    films.description, \n" +
-            "    films.release_date, \n" +
-            "    films.duration, \n" +
+            "    f.id, \n" +
+            "    f.name, \n" +
+            "    f.description, \n" +
+            "    f.release_date, \n" +
+            "    f.duration,\n" +
             "    fr.mpa_name, \n" +
-            "    ARRAY_AGG(DISTINCT films_genre.genre_id) FILTER (WHERE films_genre.genre_id IS NOT NULL) AS genre_ids\n" +
-            "FROM films \n" +
-            "LEFT JOIN films_genre ON films.id = films_genre.film_id \n" +
-            "LEFT JOIN films_ratings AS fr ON films.id = fr.film_id \n" +
-            "WHERE films.id = ? \n" +
-            "GROUP BY \n" +
-            "    films.id, \n" +
-            "    films.name, \n" +
-            "    films.description, \n" +
-            "    films.release_date, \n" +
-            "    films.duration, \n" +
+            "    ARRAY_AGG(DISTINCT fg.genre_id) FILTER (WHERE fg.genre_id IS NOT NULL) AS genre_ids,\n" +
+            "    COUNT(DISTINCT fl.user_id) AS likes_count\n" +
+            "FROM films f\n" +
+            "LEFT JOIN films_genre fg ON f.id = fg.film_id \n" +
+            "LEFT JOIN films_ratings fr ON f.id = fr.film_id \n" +
+            "LEFT JOIN film_likes fl ON f.id = fl.film_id\n" +
+            "WHERE f.id = ? " +
+            "GROUP BY\n" +
+            "    f.id,\n" +
+            "    f.name, \n" +
+            "    f.description,\n" +
+            "    f.release_date,\n" +
+            "    f.duration, \n" +
             "    fr.mpa_name;";
     private static final String FIND_ALL_QUERY = "SELECT \n" +
-            "    films.id, \n" +
-            "    films.name, \n" +
-            "    films.description, \n" +
-            "    films.release_date, \n" +
-            "    films.duration, \n" +
+            "    f.id, \n" +
+            "    f.name, \n" +
+            "    f.description, \n" +
+            "    f.release_date, \n" +
+            "    f.duration,\n" +
             "    fr.mpa_name, \n" +
-            "    ARRAY_AGG(DISTINCT films_genre.genre_id) FILTER (WHERE films_genre.genre_id IS NOT NULL) AS genre_ids\n" +
-            "FROM films \n" +
-            "LEFT JOIN films_genre ON films.id = films_genre.film_id \n" +
-            "LEFT JOIN films_ratings AS fr ON films.id = fr.film_id \n" +
-            "GROUP BY \n" +
-            "    films.id, \n" +
-            "    films.name, \n" +
-            "    films.description, \n" +
-            "    films.release_date, \n" +
-            "    films.duration, \n" +
+            "    ARRAY_AGG(DISTINCT fg.genre_id) FILTER (WHERE fg.genre_id IS NOT NULL) AS genre_ids,\n" +
+            "    COUNT(DISTINCT fl.user_id) AS likes_count\n" +
+            "FROM films f\n" +
+            "LEFT JOIN films_genre fg ON f.id = fg.film_id \n" +
+            "LEFT JOIN films_ratings fr ON f.id = fr.film_id \n" +
+            "LEFT JOIN film_likes fl ON f.id = fl.film_id\n" +
+            "GROUP BY\n" +
+            "    f.id,\n" +
+            "    f.name, \n" +
+            "    f.description,\n" +
+            "    f.release_date,\n" +
+            "    f.duration, \n" +
             "    fr.mpa_name;";
     private static final String INSERT_QUERY = "INSERT INTO films (name, description, release_date, duration)" +
             "VALUES (?, ?, ?, ?)";
@@ -63,7 +67,7 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
     private static final String UPDATE_FILM = "UPDATE films SET name=?, description=?, release_date=?, duration=? WHERE id=?";
     private static final String UPDATE_FILM_RATING = "UPDATE films_ratings SET mpa_name=? WHERE film_id=?";
     private static final String UPDATE_FILM_GENRE = "UPDATE films_genre SET genre_id=? WHERE film_id=?";
-    private static final String INSERT_LIKES = "INSERT INTO film_likes(film_id, user_id)";
+    private static final String INSERT_LIKES = "INSERT INTO film_likes(film_id, user_id) VALUES(?, ?)";
     public DbFilmStorage(JdbcTemplate jdbc, RowMapper<Film> filmMapper, MpaStorage mpaStorage, GenreStorage genreStorage) {
         super(jdbc, filmMapper);
         this.mpaStorage = mpaStorage;

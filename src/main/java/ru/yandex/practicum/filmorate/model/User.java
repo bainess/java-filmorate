@@ -28,12 +28,6 @@ public class User {
 
     private Set<UserFriend> friends = new HashSet<>();
 
-    /*public Set<Long> setFriendsList(HashSet<Long> friendsList) {
-        this.friends = friendsList;
-        return friends;
-    } */
-//    private Set<Long> friends_ids = new HashSet<>();
-
     public Long addFriendToList(Long user) {
         UserFriend  uf = new UserFriend();
         uf.setId(user);
