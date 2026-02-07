@@ -11,9 +11,7 @@ import ru.yandex.practicum.filmorate.model.MpaName;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Data
 public class FilmDto {
@@ -35,5 +33,5 @@ public class FilmDto {
     private MpaName mpa;
     private List<Genre> genres = new ArrayList<>();
 
-    private Set<Long> likes = new HashSet<>();
+    private Integer likes;
 }

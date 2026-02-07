@@ -26,7 +26,7 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .duration(film.getDuration())
                 .releaseDate(film.getReleaseDate())
                 .description(film.getDescription())
-                .likes(new HashSet<>())
+                .likes(film.getLikes())
                 .build();
         newFilm.setId(getNextId());
         films.put(newFilm.getId(), newFilm);

@@ -56,17 +56,10 @@ public class    FilmController {
         return new ResponseEntity<>(updatedFilm, HttpStatus.OK);
     }
 
-//    @DeleteMapping("/{filmId}/like/{userId}")
-//    @ResponseStatus(HttpStatus.OK)
-//    public void removeLike(@PathVariable Long filmId,
-//                           @PathVariable Long userId) {
-//        filmService.removeLike(userId, filmId);
-//    }
-//
-//    @GetMapping("/popular")
-//    public ResponseEntity<Collection<Film>> getPopularFilms(@RequestParam(defaultValue = "10") @Positive int count) {
-//        return new ResponseEntity<>(filmService.getPopularFilms(count), HttpStatus.OK);
-//    }
+    @GetMapping("/popular")
+    public ResponseEntity<Collection<Film>> getPopularFilms(@RequestParam(defaultValue = "10") @Positive int count) {
+        return new ResponseEntity<>(filmService.getPopularFilms(count), HttpStatus.OK);
+    }
 
     @PutMapping("/{filmId}/like/{userId}")
     @ResponseStatus(HttpStatus.OK)

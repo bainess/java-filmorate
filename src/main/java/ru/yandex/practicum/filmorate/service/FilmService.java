@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.film.FilmDto;
@@ -8,12 +9,12 @@ import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class FilmService {
     private FilmStorage filmStorage;
@@ -60,36 +61,14 @@ public class FilmService {
         }
         filmStorage.addLike(filmId, userId);
     }
-
-/*
-    public List<User> getLikes(Long id) {
-        Set<Long> usersLiked = filmStorage.getFilm(id).getLikes();
-
-        return userStorage.getUsers().stream().filter(user -> usersLiked.contains(user.getId())).toList();
-    }
-
-
-
-
-    public int removeLike(Long userId, Long filmId) {
-        if (filmStorage.getFilm(filmId) == null) {
-            throw new NotFoundException("Film " + filmId + " not found");
-        }
-        if (userStorage.getUser(userId) == null) {
-            throw new NotFoundException("User " + userId + " not found");
-        }
-        filmStorage.getFilm(filmId).getLikes().remove(userId);
-        return filmStorage.getFilm(filmId).getLikes().size();
-    }
-
     public Collection<Film> getPopularFilms(int count) {
         return filmStorage.getFilms().stream()
-                .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
+                .sorted((film1, film2) -> film2.getLikes() - film1.getLikes())
                 .limit(count)
                 .toList();
     }
 
- */
+
 }
 
 

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.dal.mappers.film;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -13,7 +14,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
+@Slf4j
 @Component
 public class FilmRowMapper implements RowMapper<Film>{
 
@@ -25,13 +26,14 @@ public class FilmRowMapper implements RowMapper<Film>{
         film.setDescription(resultSet.getString("description"));
         film.setDuration(resultSet.getInt("duration"));
         if (resultSet.getString("mpa_name") != null) {
+            log.info(resultSet.getString("mpa_name"));
             MpaName mpa = new MpaName();
             mpa.setId(resultSet.getInt("mpa_name"));
             film.setMpa(mpa);
         }
 
-            java.sql.Array sqlArray = resultSet.getArray("genre_ids");
-            if (sqlArray != null) {
+        java.sql.Array sqlArray = resultSet.getArray("genre_ids");
+        if (sqlArray != null) {
             Object[] data = (Object[]) sqlArray.getArray();
             Integer[] genres = Arrays.stream(data)
                     .map(obj -> ((Number) obj).intValue())
@@ -42,6 +44,9 @@ public class FilmRowMapper implements RowMapper<Film>{
                 film.getGenres().add(genre);
             }).toList();
 
+        }
+        if (resultSet.getString("likes_count") != null) {
+            film.setLikes(resultSet.getInt("likes_count"));
         }
 
         Timestamp releaseDate = resultSet.getTimestamp("release_date");
