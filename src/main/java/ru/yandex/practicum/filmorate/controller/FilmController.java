@@ -67,10 +67,10 @@ public class    FilmController {
 //    public ResponseEntity<Collection<Film>> getPopularFilms(@RequestParam(defaultValue = "10") @Positive int count) {
 //        return new ResponseEntity<>(filmService.getPopularFilms(count), HttpStatus.OK);
 //    }
-//
-//
-//
 
-//
-//
+    @PutMapping("/{filmId}/like/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void addLike(@PathVariable("filmId") Long filmId, @PathVariable("userId") Long userId) {
+        filmService.addLike(filmId, userId);
+    }
 }

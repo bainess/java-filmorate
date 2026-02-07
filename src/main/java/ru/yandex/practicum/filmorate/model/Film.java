@@ -39,6 +39,10 @@ public class Film {
     private List<Genre> genres = new ArrayList<>();
     private Set<Long> likes = new HashSet<>();
 
+    public Set<Long> showLikes() {
+        return likes;
+    }
+
     public Long addLike(Long id) {
         likes.add(id);
         return id;

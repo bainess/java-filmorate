@@ -51,4 +51,8 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .orElse(0);
         return ++maxId;
     }
+
+    public void addLike(Long filmId, Long userId) {
+
+    };
 }

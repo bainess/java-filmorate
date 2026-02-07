@@ -1,8 +1,10 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.UserFriend;
 
 import java.util.*;
 
@@ -55,6 +57,12 @@ public class InMemoryUserStorage implements UserStorage {
             oldUser.setEmail(user.getEmail());
         }
         return oldUser;
+    }
+
+    @Override
+    public Long saveFriend(Long user_id, Long friend) {
+
+        return users.get(user_id).addFriendToList(friend);
     }
 
     private long getNextId() {

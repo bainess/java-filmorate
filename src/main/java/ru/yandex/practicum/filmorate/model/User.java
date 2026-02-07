@@ -1,16 +1,14 @@
 package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,11 +26,19 @@ public class User {
     @Past(message = "Date of birth should be in the past")
     private LocalDate birthday;
 
-    private Set<Long> friends = new HashSet<>();
+    private Set<UserFriend> friends = new HashSet<>();
 
-    public Long setFriends(Long id) {
-        friends.add(id);
-        return id;
+    /*public Set<Long> setFriendsList(HashSet<Long> friendsList) {
+        this.friends = friendsList;
+        return friends;
+    } */
+//    private Set<Long> friends_ids = new HashSet<>();
+
+    public Long addFriendToList(Long user) {
+        UserFriend  uf = new UserFriend();
+        uf.setId(user);
+        friends.add(uf);
+        return user;
     }
 
 }

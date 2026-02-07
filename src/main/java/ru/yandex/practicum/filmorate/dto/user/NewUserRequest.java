@@ -3,13 +3,13 @@ package ru.yandex.practicum.filmorate.dto.user;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
+@Builder
 public class NewUserRequest {
 
     @Email(message = "Invalid email format")
@@ -23,5 +23,4 @@ public class NewUserRequest {
     @Past(message = "Date of birth should be in the past")
     private LocalDate birthday;
 
-    private Set<Long> friends = new HashSet<>();
 }

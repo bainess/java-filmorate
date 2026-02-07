@@ -7,7 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import ru.yandex.practicum.filmorate.dto.user.NewUserRequest;
+import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
+import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.UserFriend;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.*;
@@ -24,21 +28,22 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/friends/common/{friendId}")
-    public ResponseEntity<List<User>> getCommonFriends(@PathVariable Long userId,
-                                       @PathVariable Long friendId) {
+    public ResponseEntity<List<UserDto>> getCommonFriends(@PathVariable Long userId,
+                                                          @PathVariable Long friendId) {
             return new ResponseEntity<>(userService.getCommonFriends(userId, friendId), HttpStatus.OK);
     }
 
     @GetMapping("/{id}/friends")
-    public ResponseEntity<Collection<User>> getUserFriends(@PathVariable Long id) {
-        return new ResponseEntity<>(userService.getFriends(id), HttpStatus.OK);
+    public ResponseEntity<Collection<UserFriend>> getUserFriends(@PathVariable Long id) {
+        Collection<UserFriend> friends = userService.getFriends(id);
+        return new ResponseEntity<>(friends, HttpStatus.OK);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
-    public void addUserFriend(@PathVariable Long id,
+    public UserFriend addUserFriend(@PathVariable Long id,
                               @PathVariable Long friendId) {
-        userService.setFriendship(id, friendId);
+       return userService.setFriendship(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
@@ -49,21 +54,29 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<Collection<User>> getUsers() {
-        log.info("Users list: {}", userService.getUsers().size());
-            return new ResponseEntity<>(userService.getUsers(), HttpStatus.OK);
+    public ResponseEntity<Collection<UserDto>> getUsers() {
+        Collection<UserDto> users = userService.getUsers();
+            return new ResponseEntity<>(users, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserDto> getUser(@PathVariable("id") Long id) {
+        UserDto user = userService.getUserById(id);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
-        User newUser = userService.createUser(user);
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody NewUserRequest request) {
+        UserDto newUser = userService.createUser(request);
         log.info("User {} created", newUser.getLogin());
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
     @PutMapping
-    public ResponseEntity<Optional<User>> updateUser(@Valid @RequestBody User user) {
-        Optional<User> userUpdated = userService.updateUser(user);
+    public ResponseEntity<UserDto> updateUser(@Valid @RequestBody UpdateUserRequest request) {
+        long id = request.getId();
+        log.info("User data updated {}", id);
+        UserDto userUpdated = userService.updateUser(request.getId(), request);
         log.info("User data updated");
         return new ResponseEntity<>(userUpdated, HttpStatus.OK);
     }
