@@ -36,7 +36,7 @@ public class    FilmController {
 
     @PostMapping
     public ResponseEntity<FilmDto> createFilm(@Valid @RequestBody NewFilmRequest request) {
-        log.info("POST/films - Creating new film: {}", request.getName() );
+        log.info("POST/films - Creating new film: {}", request.getName());
         FilmDto newFilm = filmService.createFilm(request);
         log.info("Film {} was successfully created", request.getName());
         return new ResponseEntity<>(newFilm, HttpStatus.CREATED);

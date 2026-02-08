@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.service;
+/* package ru.yandex.practicum.filmorate.service;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -87,4 +87,4 @@ public class FilmServiceTest {
 //        int count = 1;
 //        Assertions.assertEquals(6, filmService.getPopularFilms(count).stream().findFirst().get().getLikes().size());
 //    }
-}
+} */

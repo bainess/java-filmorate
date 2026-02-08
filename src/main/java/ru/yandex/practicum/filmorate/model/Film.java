@@ -7,13 +7,7 @@ import ru.yandex.practicum.filmorate.annotation.ValidReleaseDate;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
-/**
- * Film.
- */
 
 @Data
 @Builder
@@ -37,5 +31,5 @@ public class Film {
 
     private MpaName mpa;
     private List<Genre> genres = new ArrayList<>();
-    private int likes;
+    private int likes = 0;
 }

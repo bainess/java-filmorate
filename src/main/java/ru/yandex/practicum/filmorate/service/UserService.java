@@ -38,7 +38,10 @@ public class UserService {
     }
 
     public UserDto updateUser(Long id, UpdateUserRequest request) {
-        if (userStorage.getUser(id).isEmpty()) {throw new NotFoundException("User not found"); }
+
+        if (userStorage.getUser(id).isEmpty()) {
+            throw new NotFoundException("User not found");
+        }
             User updatedUser = userStorage.getUser(id)
                     .map(user -> UserMapper.updateUserFields(request, user))
                     .orElseThrow(() -> new NotFoundException("User not found"));

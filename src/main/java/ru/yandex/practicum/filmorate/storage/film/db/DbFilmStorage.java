@@ -19,7 +19,7 @@ import java.util.Optional;
 public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
     private final MpaStorage mpaStorage;
     private final GenreStorage genreStorage;
-    String FIND_BY_ID_QUERY = "SELECT \n" +
+    private static final String FIND_BY_ID_QUERY = "SELECT \n" +
             "    f.id, \n" +
             "    f.name, \n" +
             "    f.description, \n" +
@@ -68,6 +68,7 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
     private static final String UPDATE_FILM_RATING = "UPDATE films_ratings SET mpa_name=? WHERE film_id=?";
     private static final String UPDATE_FILM_GENRE = "UPDATE films_genre SET genre_id=? WHERE film_id=?";
     private static final String INSERT_LIKES = "INSERT INTO film_likes(film_id, user_id) VALUES(?, ?)";
+
     public DbFilmStorage(JdbcTemplate jdbc, RowMapper<Film> filmMapper, MpaStorage mpaStorage, GenreStorage genreStorage) {
         super(jdbc, filmMapper);
         this.mpaStorage = mpaStorage;
@@ -85,7 +86,9 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
         }
 
         for (Genre genre : film.getGenres()) {
-            if (!genreStorage.getGenres().contains(genre.getId())) {throw new NotFoundException("Invalid genre");}
+            if (!genreStorage.getGenres().contains(genre.getId())) {
+                throw new NotFoundException("Invalid genre");
+            }
         }
 
         long id = insert(
@@ -118,9 +121,11 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
     }
 
     public Optional<Film> findFilm(Long id) {
-
-        return findOne(FIND_BY_ID_QUERY, id);
-    };
+        return findOne(
+                FIND_BY_ID_QUERY,
+                id
+        );
+    }
 
     public Film updateFilm(Film film) {
         update(
@@ -136,9 +141,8 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
                 film.getMpa().getId(),
                 film.getId()
         );
-
         return film;
-    };
+    }
 
     public void addLike(Long filmId,Long userId) {
         insert(

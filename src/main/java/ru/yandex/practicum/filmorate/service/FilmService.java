@@ -52,7 +52,9 @@ public class FilmService {
         updatedFilm = filmStorage.updateFilm(updatedFilm);
         return FilmMapper.mapToFilmDto(updatedFilm);
     }
+
     public void addLike(Long filmId, Long userId) {
+
         if (filmStorage.findFilm(filmId) == null) {
             throw new NotFoundException("Film " + filmId + " not found");
         }
@@ -61,6 +63,7 @@ public class FilmService {
         }
         filmStorage.addLike(filmId, userId);
     }
+
     public Collection<Film> getPopularFilms(int count) {
         return filmStorage.getFilms().stream()
                 .sorted((film1, film2) -> film2.getLikes() - film1.getLikes())

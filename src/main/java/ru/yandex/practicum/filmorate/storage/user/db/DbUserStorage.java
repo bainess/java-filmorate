@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.UserFriend;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.sql.PreparedStatement;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -48,7 +47,7 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
             "    users.name,\n" +
             "    users.login, \n" +
             "    users.email, \n" +
-            "    users.birthday; ";;
+            "    users.birthday; ";
 
     private static final String FIND_ALL_USERS = "SELECT \n" +
             "    users.id, \n" +
@@ -73,14 +72,14 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
     private static final String INSERT_FRIEND = "INSERT INTO user_friends(user_id, friend_id) VALUES (?, ?)";
     private static final String FIND_USER_FRIENDS = "SELECT * FROM user_friends WHERE user_id = ?";
     private static final String REMOVE_FROM_FRIENDS_QUERY = "DELETE FROM user_friends WHERE user_id = ? AND friend_id = ?";
+
     public DbUserStorage(JdbcTemplate jdbc, RowMapper<User> mapper) {
         super(jdbc, mapper);
     }
+
     @Override
     public Optional<User> getUser(Long id) {
-
        return findOne(FIND_USER_BY_ID_QUERY, id);
-
     }
 
     public Optional<User> getUserByEmail(String email) {
@@ -103,11 +102,11 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
         );
         user.setId(id);
 
-        for (UserFriend friend_id : user.getFriends()) {
+        for (UserFriend friendId : user.getFriends()) {
             insert(
                     INSERT_FRIEND,
                     user.getId(),
-                    friend_id
+                    friendId
             );
         }
         return user;
@@ -125,11 +124,12 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
         );
         return user;
     }
+
     @Override
-    public Long saveFriend(Long user_id, Long friend) {
+    public Long saveFriend(Long userId, Long friend) {
         insert(
                 INSERT_FRIEND,
-                user_id,
+                userId,
                 friend
         );
         return friend;

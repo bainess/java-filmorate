@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.dto.film;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
@@ -11,9 +10,7 @@ import ru.yandex.practicum.filmorate.model.MpaName;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Data
 public class UpdateFilmRequest {
