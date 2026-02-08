@@ -80,7 +80,6 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
     }
 
     public Film createFilm(Film film) {
-        System.out.println(mpaStorage.getRatings());
         if (!mpaStorage.getRatings().contains(film.getMpa().getId())) {
             throw new NotFoundException("Invalid rating");
         }

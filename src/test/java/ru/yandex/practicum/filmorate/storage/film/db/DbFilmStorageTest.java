@@ -1,11 +1,9 @@
 package ru.yandex.practicum.filmorate.storage.film.db;
 
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.MpaName;
@@ -14,11 +12,9 @@ import ru.yandex.practicum.filmorate.storage.user.db.DbUserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -27,13 +23,9 @@ class DbFilmStorageTest {
     private DbFilmStorage filmStorage;
 
     @Autowired
-    private MpaStorage mpaStorage;
-
-    @Autowired
     private DbUserStorage userStorage;
 
     private Film testFilm;
-    private MpaName testMpa;
     private User testUser;
 
     @BeforeEach
@@ -46,14 +38,12 @@ class DbFilmStorageTest {
         testFilm.setReleaseDate(LocalDate.of(2020, 1, 1));
         testFilm.setDuration(120);
         testFilm.setMpa(mpa);
-        // testFilm = filmDbStorage.createFilm(testFilm);
 
         testUser = new User();
         testUser.setEmail("testuser@test.com");
         testUser.setLogin("testuser");
         testUser.setName("Test User");
         testUser.setBirthday(LocalDate.of(1990, 1, 1));
-        // testUser = userDbStorage.createUser(testUser);
     }
 
     @Test
