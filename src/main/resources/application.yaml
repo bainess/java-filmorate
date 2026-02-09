@@ -1,0 +1,8 @@
+java-filmorate:
+  logging.level:
+    ru.yandex.practicum.filmorate: INFO
+  logging:
+    level:
+      org:
+        zalando:
+          logbook: TRACE
