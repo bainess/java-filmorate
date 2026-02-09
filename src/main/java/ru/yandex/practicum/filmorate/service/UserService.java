@@ -83,10 +83,10 @@ public class UserService {
 
     public void removeFromFriends(Long user1, Long user2) {
         if (userStorage.getUser(user1).isEmpty()) {
-            throw new NotFoundException("User" + user1 + " was not found");
+            throw new NotFoundException("User " + user1 + " was not found");
         }
         if (userStorage.getUser(user2).isEmpty()) {
-            throw new NotFoundException("User" + user2 + " was not found");
+            throw new NotFoundException("User " + user2 + " was not found");
         }
         userStorage.removeFromFriends(user1, user2);
     }
