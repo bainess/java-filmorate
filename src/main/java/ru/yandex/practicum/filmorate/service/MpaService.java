@@ -14,6 +14,7 @@ public class MpaService {
     public MpaService(MpaStorage mpaStorage) {
         this.mpaStorage = mpaStorage;
     }
+
     public MpaName getMpa(int id) {
         if (!mpaStorage.getRatings().stream().map(MpaName::getId).toList().contains(id)) {
             throw new NotFoundException("mpa with id " + id + " not found");

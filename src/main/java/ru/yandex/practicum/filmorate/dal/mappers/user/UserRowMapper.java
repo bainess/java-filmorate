@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.UserFriend;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -35,13 +34,9 @@ public class UserRowMapper implements RowMapper<User> {
             java.sql.Array sqlArray = resultSet.getArray("friends_ids");
             if (sqlArray != null) {
                 Object[] data = (Object[]) sqlArray.getArray();
-                Long[] friends = Arrays.stream(data)
+                Arrays.stream(data)
                         .map(obj -> ((Number) obj).longValue())
-                        .peek(id -> {
-                            UserFriend friend = new UserFriend();
-                            user.addFriendToList(id);
-                        })
-                        .toArray(Long[]::new);
+                        .forEach(user::addFriendToList);
             }
        }
         return user;
