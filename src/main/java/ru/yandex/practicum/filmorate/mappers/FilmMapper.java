@@ -8,18 +8,14 @@ import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
-import java.util.HashSet;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FilmMapper {
     public static Film mapToFilm(NewFilmRequest request) {
-        Set<Integer> uniqueIds = new HashSet<>();
-        List<Genre> uniqueGenres = request.getGenres().stream()
-                .filter(genre -> uniqueIds.add(genre.getId()))
-                .collect(Collectors.toList());
+        Set<Genre> uniqueGenres = request.getGenres().stream().collect(Collectors.toSet());
 
         Film film = new Film();
         film.setName(request.getName());
@@ -27,7 +23,7 @@ public class FilmMapper {
         film.setDuration(request.getDuration());
         film.setReleaseDate(request.getReleaseDate());
         film.setMpa(request.getMpa());
-        film.setGenres(uniqueGenres);
+        film.setGenres(new ArrayList<>(uniqueGenres).stream().sorted((genre1, genre2) -> genre1.getId() - genre2.getId()).toList());
         return film;
     }
 
