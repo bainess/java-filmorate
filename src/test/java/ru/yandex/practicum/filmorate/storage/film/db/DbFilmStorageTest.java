@@ -98,6 +98,7 @@ class DbFilmStorageTest {
     @Test
     public void testAddLike() {
         filmStorage.createFilm(testFilm);
+        userStorage.createUser(testUser);
         User newUser = userStorage.createUser(testUser);
 
         filmStorage.addLike(1L, 1L);
