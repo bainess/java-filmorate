@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.MpaName;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.MpaService;
 
 import java.util.List;
 
@@ -17,21 +18,21 @@ import java.util.List;
 @RestController
 @RequestMapping("/mpa")
 public class MpaController {
-    private final FilmService filmService;
+    private final MpaService mpaService;
 
     @Autowired
-    public MpaController(FilmService filmService) {
-        this.filmService = filmService;
+    public MpaController(MpaService mpaService) {
+        this.mpaService = mpaService;
     }
 
     @GetMapping
     public ResponseEntity<List<MpaName>> getRatings() {
-        return new ResponseEntity<>(filmService.getMpaList(), HttpStatus.OK);
+        return new ResponseEntity<>(mpaService.getMpaList(), HttpStatus.OK);
     }
 
     @GetMapping("{id}")
     public ResponseEntity<MpaName> getMpa(@PathVariable ("id") int id) {
-        MpaName mpa = filmService.getMpa(id);
+        MpaName mpa = mpaService.getMpa(id);
         log.info("Rating by id{} is {}", id, mpa.getName());
         return new ResponseEntity<>(mpa,HttpStatus.OK);
     }

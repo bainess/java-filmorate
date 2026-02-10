@@ -86,28 +86,6 @@ public class FilmService {
                 .limit(count)
                 .toList();
     }
-
-    public MpaName getMpa(int id) {
-        if (!mpaStorage.getRatings().stream().map(MpaName::getId).toList().contains(id)) {
-            throw new NotFoundException("mpa with id " + id + " not found");
-        }
-        return mpaStorage.getRating(id).get();
-    }
-
-    public  List<MpaName> getMpaList() {
-        return mpaStorage.getRatings();
-    }
-
-    public List<Genre> getGenres() {
-        return genreStorage.getGenres();
-    }
-
-    public Genre getGenre(int id) {
-         if (genreStorage.getGenre(id).isEmpty()) {
-             throw new NotFoundException("Genre with id " + id + " not found");
-         }
-        return genreStorage.getGenre(id).get();
-    }
 }
 
 
