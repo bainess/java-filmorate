@@ -9,4 +9,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MpaName {
     private int id;
+    private String name;
 }

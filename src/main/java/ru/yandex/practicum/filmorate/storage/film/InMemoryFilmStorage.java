@@ -53,6 +53,10 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     public void addLike(Long filmId, Long userId) {
-        films.get(filmId).setLikes(1);
+        films.get(filmId).addLike(userId);
+    }
+
+    public void removeLike(Long filmId, Long userId) {
+        films.get(filmId).addLike(userId);
     }
 }

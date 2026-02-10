@@ -9,7 +9,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Setter
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,5 +32,16 @@ public class Film {
 
     private MpaName mpa;
     private List<Genre> genres = new ArrayList<>();
-    private int likes = 0;
+    private List<Long> likes = new ArrayList<>();
+
+    public void addLikes(List<Long> userIds) {
+        likes = userIds;
+    }
+    public List<Long> showLikes() {
+        return likes;
+    }
+
+    public void addLike(Long userId) {
+        likes.add(userId);
+    }
 }

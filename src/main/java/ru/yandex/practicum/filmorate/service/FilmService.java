@@ -9,7 +9,11 @@ import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.MpaName;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.db.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.film.db.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -17,13 +21,17 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class FilmService {
-    private FilmStorage filmStorage;
-    private UserStorage userStorage;
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
+    private final MpaStorage mpaStorage;
+    private final GenreStorage genreStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage, MpaStorage mpaStorage, GenreStorage genreStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+        this.mpaStorage = mpaStorage;
+        this.genreStorage = genreStorage;
     }
 
     public Collection<FilmDto> getFilms() {
@@ -39,7 +47,6 @@ public class FilmService {
     }
 
     public FilmDto getFilmById(Long id) {
-        Film f = filmStorage.findFilm(id).get();
         return filmStorage.findFilm(id)
                 .map(FilmMapper::mapToFilmDto)
                 .orElseThrow(() -> new NotFoundException("Film not found"));
@@ -54,24 +61,50 @@ public class FilmService {
     }
 
     public void addLike(Long filmId, Long userId) {
-
-        if (filmStorage.findFilm(filmId) == null) {
+        if (filmStorage.findFilm(filmId).isEmpty()) {
             throw new NotFoundException("Film " + filmId + " not found");
         }
-        if (userStorage.getUser(userId) == null) {
+        if (userStorage.getUser(userId).isEmpty()) {
             throw new NotFoundException("User " + userId + " not found");
         }
         filmStorage.addLike(filmId, userId);
     }
+    public void removeLike(Long filmId, Long userId) {
+        if (filmStorage.findFilm(filmId).isEmpty()) {
+            throw new NotFoundException("Film " + filmId + " not found");
+        }
+        if (userStorage.getUser(userId).isEmpty()) {
+            throw new NotFoundException("User " + userId + " not found");
+        }
+        filmStorage.removeLike(filmId, userId);
+    }
 
     public Collection<Film> getPopularFilms(int count) {
         return filmStorage.getFilms().stream()
-                .sorted((film1, film2) -> film2.getLikes() - film1.getLikes())
+                .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
                 .limit(count)
                 .toList();
     }
 
+    public MpaName getMpa(int id) {
+        if (!mpaStorage.getRatings().stream().map(MpaName::getId).toList().contains(id)) { throw new NotFoundException("mpa with id " + id + " not found");}
+        return mpaStorage.getRating(id).get();
+    }
 
+    public  List<MpaName> getMpaList() {
+        return mpaStorage.getRatings();
+    }
+
+    public List<Genre> getGenres() {
+        return genreStorage.getGenres();
+    }
+
+    public Genre getGenre(int id) {
+         if (genreStorage.getGenre(id).isEmpty()) {
+             throw new NotFoundException("Genre with id " + id + " not found");
+         }
+        return genreStorage.getGenre(id).get();
+    }
 }
 
 

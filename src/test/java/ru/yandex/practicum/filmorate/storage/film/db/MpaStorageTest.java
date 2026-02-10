@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.yandex.practicum.filmorate.model.MpaName;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class MpaStorageTest {
 
     @Test
     public void testGetRatings() {
-        List<Integer> ageRatings = mpaStorage.getRatings();
+        List<MpaName> ageRatings = mpaStorage.getRatings();
         assertThat(ageRatings).isNotEmpty();
     }
 }

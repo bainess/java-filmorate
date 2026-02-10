@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.dal.BaseRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.MpaName;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.sql.Timestamp;
@@ -19,47 +20,49 @@ import java.util.Optional;
 public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
     private final MpaStorage mpaStorage;
     private final GenreStorage genreStorage;
-    private static final String FIND_BY_ID_QUERY = "SELECT \n" +
-            "    f.id, \n" +
-            "    f.name, \n" +
-            "    f.description, \n" +
-            "    f.release_date, \n" +
-            "    f.duration,\n" +
-            "    fr.mpa_name, \n" +
-            "    ARRAY_AGG(DISTINCT fg.genre_id) FILTER (WHERE fg.genre_id IS NOT NULL) AS genre_ids,\n" +
-            "    COUNT(DISTINCT fl.user_id) AS likes_count\n" +
-            "FROM films f\n" +
-            "LEFT JOIN films_genre fg ON f.id = fg.film_id \n" +
+    private static final String FIND_BY_ID_QUERY = "SELECT\n" +
+            "     f.id, f.name, \n" +
+            "     f.description, \n" +
+            "     f.release_date,\n" +
+            "     f.duration,\n" +
+            "     r.id AS mpa_id,\n" +
+            "      r.mpa_name, \n" +
+            "     GROUP_CONCAT(DISTINCT g.id || ':' || g.name SEPARATOR ',') AS genres_data, \n" +
+            "     ARRAY_AGG(DISTINCT fl.user_id) FILTER (WHERE fl.user_id IS NOT NULL) AS film_likes\n" +
+            " FROM films f \n" +
             "LEFT JOIN films_ratings fr ON f.id = fr.film_id \n" +
-            "LEFT JOIN film_likes fl ON f.id = fl.film_id\n" +
-            "WHERE f.id = ? " +
-            "GROUP BY\n" +
-            "    f.id,\n" +
-            "    f.name, \n" +
-            "    f.description,\n" +
-            "    f.release_date,\n" +
-            "    f.duration, \n" +
-            "    fr.mpa_name;";
-    private static final String FIND_ALL_QUERY = "SELECT \n" +
-            "    f.id, \n" +
-            "    f.name, \n" +
-            "    f.description, \n" +
-            "    f.release_date, \n" +
-            "    f.duration,\n" +
-            "    fr.mpa_name, \n" +
-            "    ARRAY_AGG(DISTINCT fg.genre_id) FILTER (WHERE fg.genre_id IS NOT NULL) AS genre_ids,\n" +
-            "    COUNT(DISTINCT fl.user_id) AS likes_count\n" +
-            "FROM films f\n" +
+            "LEFT JOIN ratings r ON fr.mpa_name = r.id \n" +
             "LEFT JOIN films_genre fg ON f.id = fg.film_id \n" +
+            "LEFT JOIN genres g ON fg.genre_id = g.id \n" +
+            "LEFT JOIN film_likes fl ON f.id = fl.film_id \n" +
+            "WHERE f.id = ?" +
+            "GROUP BY \n" +
+            "     f.id, f.name, \n" +
+            "     f.description,\n" +
+            "      f.release_date, \n" +
+            "     f.duration, \n" +
+            "     r.mpa_name;";
+    private static final String FIND_ALL_QUERY = "SELECT\n" +
+            "     f.id, f.name, \n" +
+            "     f.description, \n" +
+            "     f.release_date,\n" +
+            "     f.duration,\n" +
+            "     r.id AS mpa_id,\n" +
+            "      r.mpa_name, \n" +
+            "     GROUP_CONCAT(DISTINCT g.id || ':' || g.name SEPARATOR ',') AS genres_data, \n" +
+            "     ARRAY_AGG(DISTINCT fl.user_id) FILTER (WHERE fl.user_id IS NOT NULL) AS film_likes\n" +
+            " FROM films f \n" +
             "LEFT JOIN films_ratings fr ON f.id = fr.film_id \n" +
-            "LEFT JOIN film_likes fl ON f.id = fl.film_id\n" +
-            "GROUP BY\n" +
-            "    f.id,\n" +
-            "    f.name, \n" +
-            "    f.description,\n" +
-            "    f.release_date,\n" +
-            "    f.duration, \n" +
-            "    fr.mpa_name;";
+            "LEFT JOIN ratings r ON fr.mpa_name = r.id \n" +
+            "LEFT JOIN films_genre fg ON f.id = fg.film_id \n" +
+            "LEFT JOIN genres g ON fg.genre_id = g.id \n" +
+            "LEFT JOIN film_likes fl ON f.id = fl.film_id \n" +
+            "GROUP BY \n" +
+            "     f.id, f.name, \n" +
+            "     f.description,\n" +
+            "      f.release_date, \n" +
+            "     f.duration, \n" +
+            "     r.mpa_name;";
     private static final String INSERT_QUERY = "INSERT INTO films (name, description, release_date, duration)" +
             "VALUES (?, ?, ?, ?)";
     private static final String INSERT_TO_FILM_GENRE = "INSERT INTO films_genre(film_id, genre_id) VALUES (?, ?)";
@@ -68,7 +71,7 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
     private static final String UPDATE_FILM_RATING = "UPDATE films_ratings SET mpa_name=? WHERE film_id=?";
     private static final String UPDATE_FILM_GENRE = "UPDATE films_genre SET genre_id=? WHERE film_id=?";
     private static final String INSERT_LIKES = "INSERT INTO film_likes(film_id, user_id) VALUES(?, ?)";
-
+    private static final String REMOVE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? and user_id = ?";
     public DbFilmStorage(JdbcTemplate jdbc, RowMapper<Film> filmMapper, MpaStorage mpaStorage, GenreStorage genreStorage) {
         super(jdbc, filmMapper);
         this.mpaStorage = mpaStorage;
@@ -80,12 +83,12 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
     }
 
     public Film createFilm(Film film) {
-        if (!mpaStorage.getRatings().contains(film.getMpa().getId())) {
+        if (!mpaStorage.getRatings().stream().map(MpaName::getId).toList().contains(film.getMpa().getId())) {
             throw new NotFoundException("Invalid rating");
         }
 
         for (Genre genre : film.getGenres()) {
-            if (!genreStorage.getGenres().contains(genre.getId())) {
+            if (!genreStorage.getGenres().stream().map(Genre::getId).toList().contains(genre.getId())) {
                 throw new NotFoundException("Invalid genre");
             }
         }
@@ -144,8 +147,16 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
     }
 
     public void addLike(Long filmId,Long userId) {
-        insert(
+        update(
                 INSERT_LIKES,
+                filmId,
+                userId
+        );
+    }
+
+    public void removeLike(Long filmId, Long userId) {
+        update(
+                REMOVE_LIKE_QUERY,
                 filmId,
                 userId
         );

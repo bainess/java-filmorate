@@ -136,7 +136,7 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
     }
 
     public void removeFromFriends(Long userId, Long friendId) {
-        delete(
+        update(
                 REMOVE_FROM_FRIENDS_QUERY,
                 userId,
                 friendId

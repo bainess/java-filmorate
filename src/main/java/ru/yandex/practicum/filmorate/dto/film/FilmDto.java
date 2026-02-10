@@ -33,5 +33,5 @@ public class FilmDto {
     private MpaName mpa;
     private List<Genre> genres = new ArrayList<>();
 
-    private Integer likes;
+    private List<Long> likes = new ArrayList<>();
 }

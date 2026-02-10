@@ -7,17 +7,23 @@ import ru.yandex.practicum.filmorate.dal.BaseRepository;
 import ru.yandex.practicum.filmorate.model.MpaName;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
 public class MpaStorage extends BaseRepository<MpaName> {
-    private static final String FIND_MPA_QUERY = "SELECT id FROM ratings";
+    private static final String FIND_MPA_QUERY = "SELECT * FROM ratings";
+    private static final String FIND_GET_MPA_QUERY = "SELECT * FROM ratings WHERE id =?";
 
     public MpaStorage(JdbcTemplate jdbc, RowMapper<MpaName> mapper) {
         super(jdbc, mapper);
     }
 
-    public List<Integer> getRatings() {
-        return findMany(FIND_MPA_QUERY).stream().map(MpaName::getId).collect(Collectors.toList());
+    public List<MpaName> getRatings() {
+        return findMany(FIND_MPA_QUERY);
+    }
+
+    public Optional<MpaName> getRating(int id) {
+        return findOne(FIND_GET_MPA_QUERY, id);
     }
 }
