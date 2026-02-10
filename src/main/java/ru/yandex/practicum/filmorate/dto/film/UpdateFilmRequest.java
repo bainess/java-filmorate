@@ -35,7 +35,7 @@ public class UpdateFilmRequest {
 
     private List<Genre> genres = new ArrayList<>();
 
-    private List<Long> likes;
+    private List<Long> likes = new ArrayList<>();
 
     public boolean hasName() {
         return ! (name == null || name.isBlank());
