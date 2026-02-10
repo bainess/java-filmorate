@@ -3,7 +3,7 @@ spring:
     username: sa
     password: password
     driver-class-name: org.h2.Driver
-    url: mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false
+    url: jdbc:h2:mem:testdbDB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false
   sql:
     init:
       mode: always
