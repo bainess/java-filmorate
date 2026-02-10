@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Getter
@@ -33,6 +34,11 @@ public class User {
         uf.setId(user);
         friends.add(uf);
         return user;
+    }
+
+    public void removeFriend(Long userId) {
+       UserFriend uf = friends.stream().filter(friend -> Objects.equals(friend.getId(), userId)).findFirst().get();
+       friends.remove(uf);
     }
 
 }
