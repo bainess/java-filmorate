@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -30,7 +30,8 @@ class DbFilmStorageTest {
 
     @BeforeEach
     void setUp() {
-        MpaName mpa = new MpaName(1);
+        MpaName mpa = new MpaName();
+        mpa.setId(1);
 
         testFilm = new Film();
         testFilm.setName("Test Film");
@@ -48,12 +49,13 @@ class DbFilmStorageTest {
 
     @Test
     public void testFindFilmById() {
-        Optional<Film> filmOptional = filmStorage.findFilm(1L);
+        filmStorage.createFilm(testFilm);
+        Optional<Film> userOptional = filmStorage.findFilm(1L);
 
-        assertThat(filmOptional)
+        assertThat(userOptional)
                 .isPresent()
-                .hasValueSatisfying(film ->
-                        assertThat(film).hasFieldOrPropertyWithValue("id", 1L)
+                .hasValueSatisfying(user ->
+                        assertThat(user).hasFieldOrPropertyWithValue("id", 1L)
                 );
     }
 
@@ -95,14 +97,17 @@ class DbFilmStorageTest {
 
     @Test
     public void testAddLike() {
+        filmStorage.createFilm(testFilm);
         User newUser = userStorage.createUser(testUser);
 
         filmStorage.addLike(1L, 1L);
         Film film = filmStorage.findFilm(1L).get();
-        assertThat(film.getLikes() == 1);
+
+        assertThat(film.getLikes()).hasSize(1);
 
         filmStorage.addLike(1L, newUser.getId());
         film = filmStorage.findFilm(1L).get();
-        assertThat(film.getLikes() == 2);
+
+        assertThat(film.getLikes().size()).isEqualTo(2);
     }
 }
