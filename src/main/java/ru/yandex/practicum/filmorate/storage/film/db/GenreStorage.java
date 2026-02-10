@@ -12,7 +12,8 @@ import java.util.Optional;
 @Repository
 public class GenreStorage extends BaseRepository<Genre> {
     private static final String FIND_GENRES_QUERY = "SELECT * from genres";
-    private static final String FIND_GENRE_QUERY= "SELECT * FROM genres WHERE id = ?";
+    private static final String FIND_GENRE_QUERY = "SELECT * FROM genres WHERE id = ?";
+
     public GenreStorage(JdbcTemplate jdbc, RowMapper<Genre> mapper) {
         super(jdbc, mapper);
     }
@@ -20,6 +21,7 @@ public class GenreStorage extends BaseRepository<Genre> {
     public List<Genre> getGenres() {
         return findMany(FIND_GENRES_QUERY);
     }
+
     public Optional<Genre> getGenre(int id) {
         return findOne(FIND_GENRE_QUERY, id);
     }

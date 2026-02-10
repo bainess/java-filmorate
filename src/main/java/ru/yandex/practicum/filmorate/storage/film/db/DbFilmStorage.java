@@ -72,6 +72,7 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
     private static final String UPDATE_FILM_GENRE = "UPDATE films_genre SET genre_id=? WHERE film_id=?";
     private static final String INSERT_LIKES = "INSERT INTO film_likes(film_id, user_id) VALUES(?, ?)";
     private static final String REMOVE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? and user_id = ?";
+
     public DbFilmStorage(JdbcTemplate jdbc, RowMapper<Film> filmMapper, MpaStorage mpaStorage, GenreStorage genreStorage) {
         super(jdbc, filmMapper);
         this.mpaStorage = mpaStorage;

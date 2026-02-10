@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.model.MpaName;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
 public class MpaStorage extends BaseRepository<MpaName> {

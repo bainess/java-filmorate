@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.model.MpaName;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -33,20 +32,6 @@ public class FilmRowMapper implements RowMapper<Film> {
             mpa.setName(resultSet.getString("mpa_name"));
             film.setMpa(mpa);
         }
-
-//        java.sql.Array sqlArray = resultSet.getArray("genre_ids");
-//        if (sqlArray != null) {
-//            Object[] data = (Object[]) sqlArray.getArray();
-//            Integer[] genres = Arrays.stream(data)
-//                    .map(obj -> ((Number) obj).intValue())
-//                    .toArray(Integer[]::new);
-//            Arrays.stream(genres).peek(id -> {
-//                Genre genre = new Genre();
-//                genre.setId(id);
-//                film.getGenres().add(genre);
-//            }).toList();
-//
-//        }
 
         if (resultSet.getString("genres_data") != null) {
             film.setGenres(parseGenres(resultSet.getString("genres_data")));

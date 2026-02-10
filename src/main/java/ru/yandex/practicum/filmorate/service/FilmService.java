@@ -69,6 +69,7 @@ public class FilmService {
         }
         filmStorage.addLike(filmId, userId);
     }
+
     public void removeLike(Long filmId, Long userId) {
         if (filmStorage.findFilm(filmId).isEmpty()) {
             throw new NotFoundException("Film " + filmId + " not found");
@@ -87,7 +88,9 @@ public class FilmService {
     }
 
     public MpaName getMpa(int id) {
-        if (!mpaStorage.getRatings().stream().map(MpaName::getId).toList().contains(id)) { throw new NotFoundException("mpa with id " + id + " not found");}
+        if (!mpaStorage.getRatings().stream().map(MpaName::getId).toList().contains(id)) {
+            throw new NotFoundException("mpa with id " + id + " not found");
+        }
         return mpaStorage.getRating(id).get();
     }
 
