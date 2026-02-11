@@ -8,6 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.dto.film.FilmDto;
+import ru.yandex.practicum.filmorate.dto.film.NewFilmRequest;
+import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -17,7 +20,7 @@ import java.util.Collection;
 @RestController
 @Validated
 @RequestMapping("/films")
-public class FilmController {
+public class    FilmController {
     private final FilmService filmService;
 
     @Autowired
@@ -25,26 +28,32 @@ public class FilmController {
         this.filmService = filmService;
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Film> getFilm(@PathVariable Long id) {
-        log.info("Film with " + filmService.getFilm(id) + " was found");
-        return new ResponseEntity<>(filmService.getFilm(id), HttpStatus.OK);
-
+    @GetMapping
+    public ResponseEntity<Collection<FilmDto>> getFilms() {
+        log.info("GET/films - Number of films: {}", filmService.getFilms().size());
+            return new ResponseEntity<>(filmService.getFilms(), HttpStatus.OK);
     }
 
-    @PutMapping("/{filmId}/like/{userId}")
-    @ResponseStatus(HttpStatus.OK)
-    public void addLike(@PathVariable Long filmId,
-                        @PathVariable Long userId) {
-        filmService.addLike(userId, filmId);
-        log.info("Film " + filmId + " got like from " + userId);
+    @PostMapping
+    public ResponseEntity<FilmDto> createFilm(@Valid @RequestBody NewFilmRequest request) {
+        log.info("POST/films - Creating new film: {}", request.getName());
+        FilmDto newFilm = filmService.createFilm(request);
+        log.info("Film {} was successfully created", request.getName());
+        return new ResponseEntity<>(newFilm, HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/{filmId}/like/{userId}")
-    @ResponseStatus(HttpStatus.OK)
-    public void removeLike(@PathVariable Long filmId,
-                           @PathVariable Long userId) {
-        filmService.removeLike(userId, filmId);
+    @GetMapping("/{filmId}")
+    public ResponseEntity<FilmDto> getFilm(@PathVariable("filmId") Long filmId) {
+        log.info("Film with " + filmService.getFilmById(filmId) + " was found");
+        return new ResponseEntity<>(filmService.getFilmById(filmId), HttpStatus.OK);
+    }
+
+    @PutMapping
+    public ResponseEntity<FilmDto> updateFilm(@Valid @RequestBody UpdateFilmRequest request) {
+        log.info("Request film update{}", request);
+        FilmDto updatedFilm = filmService.updateFilm(request.getId(), request);
+        log.info("Film was successfully updated");
+        return new ResponseEntity<>(updatedFilm, HttpStatus.OK);
     }
 
     @GetMapping("/popular")
@@ -52,24 +61,16 @@ public class FilmController {
         return new ResponseEntity<>(filmService.getPopularFilms(count), HttpStatus.OK);
     }
 
-    @GetMapping
-    public ResponseEntity<Collection<Film>> getFilms() {
-        log.info("GET/films - Number of films: {}", filmService.getFilms().size());
-            return new ResponseEntity<>(filmService.getFilms(), HttpStatus.OK);
+    @PutMapping("/{filmId}/like/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void addLikes(@PathVariable("filmId") Long filmId, @PathVariable("userId") Long userId) {
+        filmService.addLike(filmId, userId);
     }
 
-    @PostMapping
-    public ResponseEntity<Film> createFilm(@Valid @RequestBody Film film) {
-        log.info("POST/films - Creating new film: {}", film.getName());
-        Film newFilm = filmService.createFilm(film);
-        log.info("Film {} was successfully created", film.getName());
-        return new ResponseEntity<>(newFilm, HttpStatus.CREATED);
+    @DeleteMapping("/{filmId}/like/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void removeLikes(@PathVariable("filmId") Long filmId, @PathVariable("userId") Long userId) {
+        filmService.removeLike(filmId, userId);
     }
 
-    @PutMapping
-    public ResponseEntity<Film> updateFilm(@Valid @RequestBody Film film) {
-        Film updatedFilm = filmService.updateFilm(film);
-        log.info("Film was successfully updated");
-        return new ResponseEntity<>(updatedFilm, HttpStatus.OK);
-    }
 }

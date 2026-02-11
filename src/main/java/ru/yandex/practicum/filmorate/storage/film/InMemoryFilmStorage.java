@@ -10,8 +10,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> films = new HashMap<>();
 
     @Override
-    public Film getFilm(Long id) {
-        return films.get(id);
+    public Optional<Film> findFilm(Long id) {
+        return Optional.of(films.get(id));
     }
 
     @Override
@@ -26,7 +26,7 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .duration(film.getDuration())
                 .releaseDate(film.getReleaseDate())
                 .description(film.getDescription())
-                .likes(new HashSet<>())
+                .likes(film.getLikes())
                 .build();
         newFilm.setId(getNextId());
         films.put(newFilm.getId(), newFilm);
@@ -50,5 +50,13 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .max()
                 .orElse(0);
         return ++maxId;
+    }
+
+    public void addLike(Long filmId, Long userId) {
+        films.get(filmId).addLike(userId);
+    }
+
+    public void removeLike(Long filmId, Long userId) {
+        films.get(filmId).addLike(userId);
     }
 }
