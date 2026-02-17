@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.util.*;
@@ -72,10 +73,12 @@ public class FilmService {
         filmStorage.removeLike(filmId, userId);
     }
 
-    public Collection<Film> getPopularFilms(int count) {
+    public Collection<Film> getPopularFilms(int limit, Integer genreId, Integer year) {
+
         return filmStorage.getFilms().stream()
+                .filter(film -> genreId == null || film.getGenres().stream().anyMatch(genre -> genre.getId() == genreId))
+                .filter(film -> year == null || film.getReleaseDate().getYear() == year)
                 .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
-                .limit(count)
                 .toList();
     }
 }

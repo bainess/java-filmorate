@@ -57,8 +57,10 @@ public class    FilmController {
     }
 
     @GetMapping("/popular")
-    public ResponseEntity<Collection<Film>> getPopularFilms(@RequestParam(defaultValue = "10") @Positive int count) {
-        return new ResponseEntity<>(filmService.getPopularFilms(count), HttpStatus.OK);
+    public ResponseEntity<Collection<Film>> getPopularFilms(@RequestParam(defaultValue = "10") @Positive int limit,
+                                                            @RequestParam(required = false) Integer genreId,
+                                                            @RequestParam(required = false) Integer year) {
+        return new ResponseEntity<>(filmService.getPopularFilms(limit, genreId, year), HttpStatus.OK);
     }
 
     @PutMapping("/{filmId}/like/{userId}")
