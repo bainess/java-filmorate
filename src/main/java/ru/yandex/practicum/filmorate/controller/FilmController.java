@@ -20,7 +20,7 @@ import java.util.Collection;
 @RestController
 @Validated
 @RequestMapping("/films")
-public class    FilmController {
+public class FilmController {
     private final FilmService filmService;
 
     @Autowired
@@ -31,7 +31,7 @@ public class    FilmController {
     @GetMapping
     public ResponseEntity<Collection<FilmDto>> getFilms() {
         log.info("GET/films - Number of films: {}", filmService.getFilms().size());
-            return new ResponseEntity<>(filmService.getFilms(), HttpStatus.OK);
+        return new ResponseEntity<>(filmService.getFilms(), HttpStatus.OK);
     }
 
     @PostMapping
@@ -75,4 +75,11 @@ public class    FilmController {
         filmService.removeLike(filmId, userId);
     }
 
+    // GET /films/director/{directorId}?sortBy=[year,likes] - список фильмов режиссёра с сортировкой
+    @GetMapping("/director/{directorId}")
+    public ResponseEntity<Collection<FilmDto>> getFilmsByDirector(
+            @PathVariable("directorId") long directorId,
+            @RequestParam(name = "sortBy", required = false, defaultValue = "year") String sortBy) {
+        return new ResponseEntity<>(filmService.getFilmsByDirector(directorId, sortBy), HttpStatus.OK);
+    }
 }

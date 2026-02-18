@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -83,6 +84,13 @@ public class FilmService {
             films = films.stream().limit(count).toList();
         }
         return films;
+    }
+
+    // Получение фильмов по режиссёру с сортировкой
+    public Collection<FilmDto> getFilmsByDirector(long directorId, String sortBy) {
+        return filmStorage.getFilmsByDirector(directorId, sortBy).stream()
+                .map(FilmMapper::mapToFilmDto)
+                .collect(Collectors.toList());
     }
 }
 

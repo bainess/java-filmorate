@@ -1,10 +1,12 @@
 package ru.yandex.practicum.filmorate.dto.film;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.annotation.ValidReleaseDate;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MpaName;
 
@@ -20,7 +22,7 @@ public class UpdateFilmRequest {
     @NotBlank
     private String name;
 
-    @Size(max = 500, message = "Description must be shoter than 200")
+    @Size(max = 500, message = "Description must be shorter than 200")
     private String description;
 
     @ValidReleaseDate
@@ -29,8 +31,10 @@ public class UpdateFilmRequest {
     @Positive
     private Integer duration;
 
-
     private MpaName mpa;
+
+    @NotEmpty
+    private List<Director> directors = new ArrayList<>(); //Добавлено
 
 
     private List<Genre> genres = new ArrayList<>();
@@ -38,30 +42,34 @@ public class UpdateFilmRequest {
     private List<Long> likes = new ArrayList<>();
 
     public boolean hasName() {
-        return ! (name == null || name.isBlank());
+        return !(name == null || name.isBlank());
     }
 
     public boolean hasDescription() {
-        return ! (name == null || name.isBlank());
+        return !(name == null || name.isBlank());
     }
 
     public boolean hasReleaseDate() {
-        return ! (releaseDate == null);
+        return !(releaseDate == null);
     }
 
     public boolean hasDuration() {
-        return ! (duration == null || duration < 0);
+        return !(duration == null || duration < 0);
     }
 
     public boolean hasMpa() {
-        return ! (mpa == null);
+        return !(mpa == null);
     }
 
     public boolean hasGenre() {
-        return ! (genres.isEmpty());
+        return !(genres.isEmpty());
     }
 
     public boolean hasLikes() {
-        return ! (likes == null);
+        return !(likes == null);
+    }
+
+    public boolean hasDirectors() {
+        return directors != null && !directors.isEmpty();
     }
 }

@@ -59,4 +59,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     public void removeLike(Long filmId, Long userId) {
         films.get(filmId).addLike(userId);
     }
+
+    @Override
+    public Collection<Film> getFilmsByDirector(long directorId, String sortBy) {
+        return null;
+    }
 }

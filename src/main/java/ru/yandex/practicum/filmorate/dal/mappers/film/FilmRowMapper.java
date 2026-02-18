@@ -3,10 +3,12 @@ package ru.yandex.practicum.filmorate.dal.mappers.film;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MpaName;
 
+import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -25,8 +27,8 @@ public class FilmRowMapper implements RowMapper<Film> {
         film.setName(resultSet.getString("name"));
         film.setDescription(resultSet.getString("description"));
         film.setDuration(resultSet.getInt("duration"));
+
         if (resultSet.getString("mpa_name") != null) {
-            log.info(resultSet.getString("mpa_name"));
             MpaName mpa = new MpaName();
             mpa.setId(resultSet.getInt("mpa_id"));
             mpa.setName(resultSet.getString("mpa_name"));
@@ -38,7 +40,7 @@ public class FilmRowMapper implements RowMapper<Film> {
         }
 
         if (resultSet.getString("film_likes") != null) {
-            java.sql.Array sqlArrayUsers = resultSet.getArray("film_likes");
+            Array sqlArrayUsers = resultSet.getArray("film_likes");
             if (sqlArrayUsers != null) {
                 Object[] data = (Object[]) sqlArrayUsers.getArray();
                 Long[] users = Arrays.stream(data)
@@ -48,8 +50,16 @@ public class FilmRowMapper implements RowMapper<Film> {
             }
         }
 
+        // Добавлена обработка режисёров
+        if (resultSet.getString("directors_data") != null) {
+            film.setDirectors(parseDirectors(resultSet.getString("directors_data")));
+        }
+
         Timestamp releaseDate = resultSet.getTimestamp("release_date");
-        film.setReleaseDate(releaseDate.toLocalDateTime().toLocalDate());
+        if (releaseDate != null) {
+            film.setReleaseDate(releaseDate.toLocalDateTime().toLocalDate());
+        }
+
         return film;
     }
 
@@ -64,6 +74,22 @@ public class FilmRowMapper implements RowMapper<Film> {
                     return new Genre(
                             Integer.parseInt(genreArr[0]),
                             genreArr[1]
+                    );
+                }).toList();
+    }
+
+    //Добавлено
+    private List<Director> parseDirectors(String directorsData) {
+        if (directorsData == null || directorsData.isBlank()) {
+            return Collections.emptyList();
+        }
+
+        return Arrays.stream(directorsData.split(","))
+                .map(directorInfo -> {
+                    String[] dirArr = directorInfo.split(":");
+                    return new Director(
+                            Long.parseLong(dirArr[0]),
+                            dirArr[1]
                     );
                 }).toList();
     }
