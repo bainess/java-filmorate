@@ -72,11 +72,17 @@ public class FilmService {
         filmStorage.removeLike(filmId, userId);
     }
 
-    public Collection<Film> getPopularFilms(int count) {
-        return filmStorage.getFilms().stream()
+    public Collection<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
+        List<Film> films = filmStorage.getFilms().stream()
+                .filter(film -> genreId == null || film.getGenres().stream().anyMatch(genre -> genre.getId() == genreId))
+                .filter(film -> year == null || film.getReleaseDate().getYear() == year)
                 .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
-                .limit(count)
                 .toList();
+
+        if (count != null) {
+            films = films.stream().limit(count).toList();
+        }
+        return films;
     }
 }
 
