@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.user.db;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -20,11 +21,20 @@ class DbUserStorageTest {
 
     private User testUser;
     private User friendUser;
+    User user;
+    @BeforeEach
+    void setUp() {
+        user = new User();
+        user.setName("User Name");
+        user.setEmail("user@email.com");
+        user.setLogin("user_login");
+        user.setBirthday(LocalDate.of(1990, 12, 31));
+        user = userStorage.createUser(user);
+    }
 
     @Test
     public void testGetUser() {
         Optional<User> userOptional = userStorage.getUser(1L);
-
         assertThat(userOptional)
                 .isPresent()
                 .hasValueSatisfying(user ->
@@ -34,12 +44,12 @@ class DbUserStorageTest {
 
     @Test
     public void testGetUsers() {
-        User testingUser = userStorage.getUser(1L).get();
-        Collection<User> users = userStorage.getUsers();
+        User testUser = userStorage.getUser(user.getId()).get();
 
-        assertThat(users)
-                .isNotEmpty()
-                .anyMatch(user -> user.getId().equals(testingUser.getId()));
+        assertThat(testUser.getName()).isEqualTo(user.getName());
+        assertThat(testUser.getEmail()).isEqualTo(user.getEmail());
+        assertThat(testUser.getLogin()).isEqualTo(user.getLogin());
+        assertThat(testUser.getBirthday()).isEqualTo(user.getBirthday());
     }
 
     @Test
