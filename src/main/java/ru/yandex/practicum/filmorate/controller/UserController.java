@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.user.NewUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.UserFriend;
+import ru.yandex.practicum.filmorate.service.EventService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.*;
@@ -20,10 +22,18 @@ import java.util.*;
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
+    private final EventService eventService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, EventService eventService) {
+
         this.userService = userService;
+        this.eventService = eventService;
+    }
+
+    @GetMapping("/{userId}/feed")
+    public ResponseEntity<Collection<Event>> getUserFeed(@RequestParam ("userId") Long userId) {
+        return new ResponseEntity<>(eventService.getEvents(userId), HttpStatus.OK );
     }
 
     @GetMapping("/{userId}/friends/common/{friendId}")
