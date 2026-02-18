@@ -75,9 +75,9 @@ public class FilmService {
 
     public Collection<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
         List<Film> films = filmStorage.getFilms().stream()
-                .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
                 .filter(film -> genreId == null || film.getGenres().stream().anyMatch(genre -> genre.getId() == genreId))
                 .filter(film -> year == null || film.getReleaseDate().getYear() == year)
+                .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
                 .toList();
 
         if (count != null) {
