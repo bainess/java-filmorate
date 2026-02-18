@@ -8,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -22,6 +21,7 @@ class DbUserStorageTest {
     private User testUser;
     private User friendUser;
     User user;
+
     @BeforeEach
     void setUp() {
         user = new User();
