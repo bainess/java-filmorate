@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film.db;
 
+import jakarta.validation.ValidationException;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -110,7 +111,7 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
 
         // проверка наличия хотя бы одного режиссёра
         if (film.getDirectors() == null || film.getDirectors().isEmpty()) {
-            throw new NotFoundException("Film must have at least one director"); // добавлено
+            throw new ValidationException("Film must have at least one director"); // добавлено
         }
 
         long id = insert(
@@ -135,7 +136,7 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
 
         // вставка режиссёров
         for (Director director : film.getDirectors()) { // добавлено
-            insert(INSERT_TO_FILM_DIRECTOR, film.getId(), director.getId()); // добавлено
+            update(INSERT_TO_FILM_DIRECTOR, film.getId(), director.getId()); // добавлено
         }
 
         return film;
