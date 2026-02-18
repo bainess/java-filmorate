@@ -83,14 +83,18 @@ public class FilmRowMapper implements RowMapper<Film> {
         if (directorsData == null || directorsData.isBlank()) {
             return Collections.emptyList();
         }
-
-        return Arrays.stream(directorsData.split(","))
+        return Arrays.stream(directorsData
+                        .replace("[", "")   // Убираем [
+                        .replace("]", "")   // Убираем ]
+                        .split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
                 .map(directorInfo -> {
                     String[] dirArr = directorInfo.split(":");
-                    return new Director(
-                            Long.parseLong(dirArr[0]),
-                            dirArr[1]
-                    );
-                }).toList();
+                    long id = Long.parseLong(dirArr[0].trim());
+                    String name = dirArr.length > 1 ? dirArr[1].trim() : null;
+                    return new Director(id, name);
+                })
+                .toList();
     }
 }

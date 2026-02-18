@@ -160,7 +160,7 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
         // Обновление режиссёров сначала удаляем старые, потом вставляем новые
         update(UPDATE_FILM_DIRECTOR, film.getId()); // удаляем старых
         for (Director director : film.getDirectors()) { // вставляем новых
-            insert(INSERT_TO_FILM_DIRECTOR, film.getId(), director.getId());
+            update(INSERT_TO_FILM_DIRECTOR, film.getId(), director.getId());
         }
 
         return film;
