@@ -88,7 +88,7 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
         return findMany(FIND_ALL_USERS);
     }
 
-    @Override
+    /*@Override
     public User createUser(User user) {
         long id = insert(
                 INSERT_USER,
@@ -105,6 +105,31 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
                     user.getId(),
                     friendId
             );
+        }
+        return user;
+    }*/
+
+    @Override
+    public User createUser(User user) {
+        long id = insert(
+                INSERT_USER,
+                user.getName(),
+                user.getLogin(),
+                user.getEmail(),
+                user.getBirthday()
+        );
+        user.setId(id);
+
+        if (user.getFriends() != null) {
+            for (UserFriend friendId : user.getFriends()) {
+                if (friendId != null) {
+                    insert(
+                            INSERT_FRIEND,
+                            user.getId(),
+                            friendId
+                    );
+                }
+            }
         }
         return user;
     }
