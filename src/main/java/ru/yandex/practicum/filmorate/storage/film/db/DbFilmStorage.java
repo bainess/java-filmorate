@@ -26,55 +26,43 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
 
     // Изменяем SQL-запросы, добавляем выборку режиссёров
     private static final String FIND_BY_ID_QUERY = "SELECT\n" +
-            "                f.id, f.name,\n" +
-            "                f.description, \n" +
-            "                f.release_date,\n" +
-            "                f.duration,\n" +
-            "                r.id AS mpa_id,\n" +
-            "                 r.mpa_name, \n" +
-            "                GROUP_CONCAT(DISTINCT g.id || ':' || g.name ORDER BY g.id  SEPARATOR ',') AS genres_data, \n" +
-            "                ARRAY_AGG(DISTINCT fl.user_id) FILTER (WHERE fl.user_id IS NOT NULL) AS film_likes, \n" +
-            "                ARRAY_AGG(DISTINCT d.id || ':' || d.director_name) AS directors_data \n" + // добавлены данные режиссёров
-            "            FROM films f \n" +
-            "           LEFT JOIN ratings r ON f.mpa_id = r.id \n" +
-            "           LEFT JOIN films_genre fg ON f.id = fg.film_id \n" +
-            "           LEFT JOIN genres g ON fg.genre_id = g.id\n" +
-            "           LEFT JOIN film_likes fl ON f.id = fl.film_id \n" +
-            "           LEFT JOIN film_directors fd ON f.id = fd.film_id \n" + // добавлено соединение с film_directors
-            "           LEFT JOIN directors d ON fd.director_id = d.id \n" + // добавлено соединение с directors
-            "           WHERE f.id = ? \n" +
-            "           GROUP BY\n" +
-            "                f.id, f.name,\n" +
-            "                f.description,\n" +
-            "                 f.release_date, \n" +
-            "                f.duration,\n" +
-            "                 r.id, \n" +
-            "                r.mpa_name;";
+            "    f.id, f.name,\n" +
+            "    f.description, \n" +
+            "    f.release_date,\n" +
+            "    f.duration,\n" +
+            "    r.id AS mpa_id,\n" +
+            "    r.mpa_name, \n" +
+            "    STRING_AGG(DISTINCT g.id || ':' || g.name, ',') AS genres_data, \n" +
+            "    STRING_AGG(DISTINCT CAST(fl.user_id AS VARCHAR), ',') AS film_likes, \n" +
+            "    STRING_AGG(DISTINCT d.id || ':' || d.director_name, ',') AS directors_data \n" +
+            "FROM films f \n" +
+            "LEFT JOIN ratings r ON f.mpa_id = r.id \n" +
+            "LEFT JOIN films_genre fg ON f.id = fg.film_id \n" +
+            "LEFT JOIN genres g ON fg.genre_id = g.id\n" +
+            "LEFT JOIN film_likes fl ON f.id = fl.film_id \n" +
+            "LEFT JOIN film_directors fd ON f.id = fd.film_id \n" +
+            "LEFT JOIN directors d ON fd.director_id = d.id \n" +
+            "WHERE f.id = ? \n" +
+            "GROUP BY f.id, f.name, f.description, f.release_date, f.duration, r.id, r.mpa_name;";
 
     private static final String FIND_ALL_QUERY = "SELECT\n" +
-            "                f.id, f.name,\n" +
-            "                f.description, \n" +
-            "                f.release_date,\n" +
-            "                f.duration,\n" +
-            "                r.id AS mpa_id,\n" +
-            "                 r.mpa_name, \n" +
-            "                GROUP_CONCAT(DISTINCT g.id || ':' || g.name ORDER BY g.id  SEPARATOR ',') AS genres_data, \n" +
-            "                ARRAY_AGG(DISTINCT fl.user_id) FILTER (WHERE fl.user_id IS NOT NULL) AS film_likes, \n" +
-            "                ARRAY_AGG(DISTINCT d.id || ':' || d.director_name) AS directors_data \n" + // добавлено
-            "            FROM films f \n" +
-            "           LEFT JOIN ratings r ON f.mpa_id = r.id \n" +
-            "           LEFT JOIN films_genre fg ON f.id = fg.film_id \n" +
-            "           LEFT JOIN genres g ON fg.genre_id = g.id\n" +
-            "           LEFT JOIN film_likes fl ON f.id = fl.film_id \n" +
-            "           LEFT JOIN film_directors fd ON f.id = fd.film_id \n" + // добавлено
-            "           LEFT JOIN directors d ON fd.director_id = d.id \n" + // добавлено
-            "           GROUP BY\n" +
-            "                f.id, f.name,\n" +
-            "                f.description,\n" +
-            "                 f.release_date, \n" +
-            "                f.duration,\n" +
-            "                 r.id, \n" +
-            "                r.mpa_name;";
+            "    f.id, f.name,\n" +
+            "    f.description, \n" +
+            "    f.release_date,\n" +
+            "    f.duration,\n" +
+            "    r.id AS mpa_id,\n" +
+            "    r.mpa_name, \n" +
+            "    STRING_AGG(DISTINCT g.id || ':' || g.name, ',') AS genres_data, \n" +
+            "    STRING_AGG(DISTINCT CAST(fl.user_id AS VARCHAR), ',') AS film_likes, \n" +
+            "    STRING_AGG(DISTINCT d.id || ':' || d.director_name, ',') AS directors_data \n" +
+            "FROM films f \n" +
+            "LEFT JOIN ratings r ON f.mpa_id = r.id \n" +
+            "LEFT JOIN films_genre fg ON f.id = fg.film_id \n" +
+            "LEFT JOIN genres g ON fg.genre_id = g.id\n" +
+            "LEFT JOIN film_likes fl ON f.id = fl.film_id \n" +
+            "LEFT JOIN film_directors fd ON f.id = fd.film_id \n" +
+            "LEFT JOIN directors d ON fd.director_id = d.id \n" +
+            "GROUP BY f.id, f.name, f.description, f.release_date, f.duration, r.id, r.mpa_name;";
 
     private static final String INSERT_QUERY = "INSERT INTO films (name, description, release_date, duration, mpa_id)" +
             "VALUES (?, ?, ?, ?, ?)";
@@ -179,9 +167,9 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
         String baseQuery = "SELECT " +
                 "f.id, f.name, f.description, f.release_date, f.duration, " +
                 "r.id AS mpa_id, r.mpa_name, " +
-                "GROUP_CONCAT(DISTINCT g.id || ':' || g.name ORDER BY g.id SEPARATOR ',') AS genres_data, " +
-                "ARRAY_AGG(DISTINCT fl.user_id) FILTER (WHERE fl.user_id IS NOT NULL) AS film_likes, " +
-                "ARRAY_AGG(DISTINCT d.id || ':' || d.director_name) AS directors_data " +
+                "STRING_AGG(DISTINCT g.id || ':' || g.name, ',') AS genres_data, " +
+                "STRING_AGG(DISTINCT CAST(fl.user_id AS VARCHAR), ',') AS film_likes, " +
+                "STRING_AGG(DISTINCT d.id || ':' || d.director_name, ',') AS directors_data " +
                 "FROM films f " +
                 "LEFT JOIN ratings r ON f.mpa_id = r.id " +
                 "LEFT JOIN films_genre fg ON f.id = fg.film_id " +
