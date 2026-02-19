@@ -22,7 +22,7 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
             "    users.login,\n" +
             "    users.email,\n" +
             "    users.birthday,\n" +
-            "    ARRAY_AGG(DISTINCT user_friends.friend_id) FILTER (WHERE user_friends.friend_id IS NOT NULL) AS friends_ids\n" +
+            "    STRING_AGG(CAST(user_friends.friend_id AS VARCHAR), ',') AS friends_ids\n" +
             "FROM users\n" +
             "LEFT JOIN user_friends ON users.id = user_friends.user_id\n" +
             "WHERE users.id = ? \n" +
@@ -38,7 +38,7 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
             "    users.login,\n" +
             "    users.email,\n" +
             "    users.birthday,\n" +
-            "    ARRAY_AGG(DISTINCT user_friends.friend_id) FILTER (WHERE user_friends.friend_id IS NOT NULL) AS friends_ids\n" +
+            "    STRING_AGG(CAST(user_friends.friend_id AS VARCHAR), ',') AS friends_ids\n" +
             "FROM users\n" +
             "LEFT JOIN user_friends ON users.id = user_friends.user_id\n" +
             "WHERE users.email = ? \n" +
@@ -48,15 +48,13 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
             "    users.login, \n" +
             "    users.email, \n" +
             "    users.birthday; ";
-
     private static final String FIND_ALL_USERS = "SELECT \n" +
             "    users.id, \n" +
             "    users.name,\n" +
             "    users.login,\n" +
             "    users.email,\n" +
             "    users.birthday,\n" +
-            "    ARRAY_AGG(DISTINCT user_friends.friend_id)  \n" +
-            " FILTER (WHERE user_friends.friend_id IS NOT NULL) AS friends_ids\n" +
+            "    STRING_AGG(CAST(user_friends.friend_id AS VARCHAR), ',') AS friends_ids\n" +
             "FROM users\n" +
             "LEFT JOIN user_friends ON users.id = user_friends.user_id\n" +
             "GROUP BY \n" +
@@ -65,7 +63,6 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
             "    users.login, \n" +
             "    users.email, \n" +
             "    users.birthday; ";
-
     private static final String INSERT_USER = "INSERT INTO users (name, login, email, birthday) " +
             "VALUES (?, ?, ?, ?)";
     private static final String UPDATE_USER = "UPDATE users SET name=?, login=?, email=?, birthday=? WHERE id=?";
@@ -79,7 +76,7 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
 
     @Override
     public Optional<User> getUser(Long id) {
-       return findOne(FIND_USER_BY_ID_QUERY, id);
+        return findOne(FIND_USER_BY_ID_QUERY, id);
     }
 
     public Optional<User> getUserByEmail(String email) {
