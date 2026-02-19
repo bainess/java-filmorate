@@ -108,11 +108,6 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
             }
         }
 
-        // todo проверка наличия хотя бы одного режиссёра
-        //if (film.getDirectors() == null || film.getDirectors().isEmpty()) {
-        //    throw new ValidationException("Film must have at least one director"); // добавлено
-        //}
-
         long id = insert(
                 INSERT_QUERY,
                 film.getName(),
@@ -159,7 +154,7 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
         update(UPDATE_FILM_DIRECTOR, film.getId());
 
         // Обновление режиссёров сначала удаляем старые, потом вставляем новые
-        if (film.getDirectors() != null) {
+        if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
             for (Director director : film.getDirectors()) {
                 update(INSERT_TO_FILM_DIRECTOR, film.getId(), director.getId());
             }
