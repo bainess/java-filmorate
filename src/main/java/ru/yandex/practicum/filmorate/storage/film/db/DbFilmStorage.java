@@ -150,16 +150,17 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
                 UPDATE_FILM,
                 film.getName(),
                 film.getDescription(),
-                film.getReleaseDate(),
+                Timestamp.valueOf(film.getReleaseDate().atStartOfDay()), // исправлено
                 film.getDuration(),
                 film.getMpa().getId(),
                 film.getId()
         );
 
         // Обновление режиссёров сначала удаляем старые, потом вставляем новые
-        update(UPDATE_FILM_DIRECTOR, film.getId()); // удаляем старых
-        for (Director director : film.getDirectors()) { // вставляем новых
-            update(INSERT_TO_FILM_DIRECTOR, film.getId(), director.getId());
+        if (film.getDirectors() != null) {
+            for (Director director : film.getDirectors()) {
+                update(INSERT_TO_FILM_DIRECTOR, film.getId(), director.getId());
+            }
         }
 
         return film;
