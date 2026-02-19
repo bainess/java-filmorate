@@ -109,10 +109,10 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
             }
         }
 
-        // проверка наличия хотя бы одного режиссёра
-        if (film.getDirectors() == null || film.getDirectors().isEmpty()) {
-            throw new ValidationException("Film must have at least one director"); // добавлено
-        }
+        // todo проверка наличия хотя бы одного режиссёра
+        //if (film.getDirectors() == null || film.getDirectors().isEmpty()) {
+        //    throw new ValidationException("Film must have at least one director"); // добавлено
+        //}
 
         long id = insert(
                 INSERT_QUERY,

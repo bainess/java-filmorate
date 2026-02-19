@@ -33,9 +33,7 @@ public class UpdateFilmRequest {
 
     private MpaName mpa;
 
-    @NotEmpty
     private List<Director> directors = new ArrayList<>(); //Добавлено
-
 
     private List<Genre> genres = new ArrayList<>();
 

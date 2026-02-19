@@ -33,6 +33,5 @@ public class NewFilmRequest {
 
     private MpaName mpa;
 
-    @NotEmpty
     private List<Director> directors = new ArrayList<>(); //Добавлено
 }

@@ -37,6 +37,5 @@ public class FilmDto {
 
     private List<Long> likes = new ArrayList<>();
 
-    @NotEmpty
-    private List<Director> directors = new ArrayList<>(); //Добавлено
+    private List<Director> directors = new ArrayList<>();
 }
