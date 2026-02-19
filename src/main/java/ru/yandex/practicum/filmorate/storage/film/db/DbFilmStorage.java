@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Primary
@@ -154,7 +155,8 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
         update(UPDATE_FILM_DIRECTOR, film.getId());
 
         // Обновление режиссёров сначала удаляем старые, потом вставляем новые
-        if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
+        List<Director> directors = film.getDirectors();
+        if (directors != null && !directors.isEmpty()) {
             for (Director director : film.getDirectors()) {
                 update(INSERT_TO_FILM_DIRECTOR, film.getId(), director.getId());
             }
