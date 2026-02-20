@@ -21,7 +21,7 @@ public class ReviewMapper {
 
     public static ReviewDto mapToReviewDto(Review review) {
         ReviewDto dto = new ReviewDto();
-        dto.setId(review.getId());
+        dto.setReviewId(review.getId());
         dto.setContent(review.getContent());
         dto.setIsPositive(review.getIsPositive());
         dto.setUserId(review.getUserId());
