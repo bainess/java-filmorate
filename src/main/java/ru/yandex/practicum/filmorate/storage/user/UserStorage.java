@@ -18,4 +18,6 @@ public interface UserStorage {
     Long saveFriend(Long userId, Long friend);
 
     void removeFromFriends(Long userId, Long friendId);
+
+    void deleteUser(Long id);
 }
