@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class ReviewDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Long id;
+    private Long reviewId;
 
     @NotBlank(message = "Invalid content format")
     private String content;

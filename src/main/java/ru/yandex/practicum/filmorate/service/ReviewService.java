@@ -47,7 +47,7 @@ public class ReviewService {
     }
 
     public ReviewDto updateReview(UpdateReviewRequest request) {
-        Review updatedReview = dbReviewStorage.getReview(request.getId())
+        Review updatedReview = dbReviewStorage.getReview(request.getReviewId())
                 .map(review -> ReviewMapper.updateReviewFields(request, review))
                 .orElseThrow(() -> new NotFoundException("Review not found"));
         updatedReview = dbReviewStorage.updateReview(updatedReview);

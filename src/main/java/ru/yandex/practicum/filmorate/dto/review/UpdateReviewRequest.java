@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class UpdateReviewRequest {
 
-    private Long id;
+    private Long reviewId;
 
     @NotBlank(message = "Invalid content format")
     private String content;
@@ -16,10 +16,6 @@ public class UpdateReviewRequest {
     private Long userId;
 
     private Long filmId;
-
-    public boolean hasId() {
-        return id != null;
-    }
 
     public boolean hasContent() {
         return content != null && !content.isBlank();
