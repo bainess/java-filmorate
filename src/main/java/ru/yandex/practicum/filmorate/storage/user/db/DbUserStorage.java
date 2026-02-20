@@ -1,16 +1,21 @@
 package ru.yandex.practicum.filmorate.storage.user.db;
 
 import org.springframework.context.annotation.Primary;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.BaseRepository;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.UserFriend;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Collection;
-import java.util.Optional;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.*;
 
 @Primary
 @Repository
@@ -66,16 +71,16 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
             "    users.email, \n" +
             "    users.birthday; ";
 
-    private static final String INSERT_USER = "INSERT INTO users (name, login, email, birthday) " +
-            "VALUES (?, ?, ?, ?)";
     private static final String UPDATE_USER = "UPDATE users SET name=?, login=?, email=?, birthday=? WHERE id=?";
     private static final String INSERT_FRIEND = "INSERT INTO user_friends(user_id, friend_id) VALUES (?, ?)";
     private static final String FIND_USER_FRIENDS = "SELECT * FROM user_friends WHERE user_id = ?";
     private static final String REMOVE_FROM_FRIENDS_QUERY = "DELETE FROM user_friends WHERE user_id = ? AND friend_id = ?";
     private static final String DELETE_USER_QUERY = "DELETE FROM users WHERE id = ?";
+    private final JdbcTemplate jdbcTemplate;
 
-    public DbUserStorage(JdbcTemplate jdbc, RowMapper<User> mapper) {
+    public DbUserStorage(JdbcTemplate jdbc, RowMapper<User> mapper, JdbcTemplate jdbcTemplate) {
         super(jdbc, mapper);
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
@@ -94,22 +99,19 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
 
     @Override
     public User createUser(User user) {
-        long id = insert(
-                INSERT_USER,
-                user.getName(),
-                user.getLogin(),
-                user.getEmail(),
-                user.getBirthday()
-        );
-        user.setId(id);
+        String sqlQuery = "INSERT INTO users (name, login, email, birthday) VALUES (?, ?, ?, ?)";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        for (UserFriend friendId : user.getFriends()) {
-            insert(
-                    INSERT_FRIEND,
-                    user.getId(),
-                    friendId
-            );
-        }
+        jdbcTemplate.update(connection -> {
+            PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"id"});
+            stmt.setString(1, user.getName());
+            stmt.setString(2, user.getLogin());
+            stmt.setString(3, user.getEmail());
+            stmt.setDate(4, Date.valueOf(user.getBirthday()));
+            return stmt;
+        }, keyHolder);
+
+        user.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
         return user;
     }
 
