@@ -18,8 +18,8 @@ import java.util.*;
 
 @Service
 public class UserService {
-    private UserStorage userStorage;
-    private FilmStorage filmStorage;
+    private final UserStorage userStorage;
+    private final FilmStorage filmStorage;
 
     @Autowired
     public UserService(UserStorage userStorage, FilmStorage filmStorage) {
@@ -29,10 +29,9 @@ public class UserService {
     }
 
     public UserDto getUserById(Long id) {
-        UserDto dto = userStorage.getUser(id)
+        return userStorage.getUser(id)
                 .map(UserMapper::mapToUserDto)
                 .orElseThrow(() -> new NotFoundException("User not found"));
-        return dto;
     }
 
     public Collection<UserDto> getUsers() {
@@ -108,6 +107,12 @@ public class UserService {
         return filmStorage.getRecommendations(userId).stream()
                 .map(FilmMapper::mapToFilmDto)
                 .toList();
+    }
+
+    public void deleteUser(Long id) {
+        userStorage.getUser(id)
+                .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
+        userStorage.deleteUser(id);
     }
 
 }

@@ -75,33 +75,34 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
     private static final String INSERT_LIKES = "INSERT INTO film_likes(film_id, user_id) VALUES(?, ?)";
     private static final String REMOVE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? and user_id = ?";
     private static final String FIND_RECOMMENDATIONS_QUERY = """
-    SELECT\s
-        f.*,\s
-        r.mpa_name,\s
-        r.id AS mpa_id,
-        GROUP_CONCAT(DISTINCT g.id || ':' || g.name ORDER BY g.id SEPARATOR ',') AS genres_data,
-        ARRAY_AGG(DISTINCT fl_all.user_id) FILTER (WHERE fl_all.user_id IS NOT NULL) AS film_likes
-    FROM films f
-    LEFT JOIN ratings r ON f.mpa_id = r.id
-    LEFT JOIN films_genre fg ON f.id = fg.film_id
-    LEFT JOIN genres g ON fg.genre_id = g.id
-    LEFT JOIN film_likes fl_all ON f.id = fl_all.film_id
-    WHERE f.id IN (
-        SELECT fl_other.film_id
-        FROM film_likes fl_other
-        WHERE fl_other.user_id = (
-            SELECT fl2.user_id
-            FROM film_likes fl1
-            JOIN film_likes fl2 ON fl1.film_id = fl2.film_id
-            WHERE fl1.user_id = ? AND fl2.user_id != ?
-            GROUP BY fl2.user_id
-            ORDER BY COUNT(fl1.film_id) DESC
-            LIMIT 1
-        )
-        AND fl_other.film_id NOT IN (SELECT film_id FROM film_likes WHERE user_id = ?)
-    )
-    GROUP BY f.id, r.mpa_name, r.id
-   \s""";
+             SELECT\s
+                 f.*,\s
+                 r.mpa_name,\s
+                 r.id AS mpa_id,
+                 GROUP_CONCAT(DISTINCT g.id || ':' || g.name ORDER BY g.id SEPARATOR ',') AS genres_data,
+                 ARRAY_AGG(DISTINCT fl_all.user_id) FILTER (WHERE fl_all.user_id IS NOT NULL) AS film_likes
+             FROM films f
+             LEFT JOIN ratings r ON f.mpa_id = r.id
+             LEFT JOIN films_genre fg ON f.id = fg.film_id
+             LEFT JOIN genres g ON fg.genre_id = g.id
+             LEFT JOIN film_likes fl_all ON f.id = fl_all.film_id
+             WHERE f.id IN (
+                 SELECT fl_other.film_id
+                 FROM film_likes fl_other
+                 WHERE fl_other.user_id = (
+                     SELECT fl2.user_id
+                     FROM film_likes fl1
+                     JOIN film_likes fl2 ON fl1.film_id = fl2.film_id
+                     WHERE fl1.user_id = ? AND fl2.user_id != ?
+                     GROUP BY fl2.user_id
+                     ORDER BY COUNT(fl1.film_id) DESC
+                     LIMIT 1
+                 )
+                 AND fl_other.film_id NOT IN (SELECT film_id FROM film_likes WHERE user_id = ?)
+             )
+             GROUP BY f.id, r.mpa_name, r.id
+            \s""";
+    private static final String DELETE_FILM_QUERY = "DELETE FROM films WHERE id = ?";
 
     public DbFilmStorage(JdbcTemplate jdbc, RowMapper<Film> filmMapper, MpaStorage mpaStorage, GenreStorage genreStorage, DirectorStorage directorStorage) {
         super(jdbc, filmMapper);
@@ -226,5 +227,10 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
     @Override
     public Collection<Film> getRecommendations(Long userId) {
         return findMany(FIND_RECOMMENDATIONS_QUERY, userId, userId, userId);
+    }
+
+    @Override
+    public void deleteFilm(Long id) {
+        update(DELETE_FILM_QUERY, id);
     }
 }

@@ -91,6 +91,10 @@ public class FilmService {
         return filmStorage.getFilmsByDirector(directorId, sortBy).stream()
                 .map(FilmMapper::mapToFilmDto)
                 .collect(Collectors.toList());
+    public void deleteFilm(Long id) {
+        filmStorage.findFilm(id)
+                .orElseThrow(() -> new NotFoundException("Film with id " + id + " not found"));
+        filmStorage.deleteFilm(id);
     }
 }
 
