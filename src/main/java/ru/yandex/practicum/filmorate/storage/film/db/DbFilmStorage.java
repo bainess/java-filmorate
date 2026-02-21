@@ -22,9 +22,8 @@ import java.util.Optional;
 public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
     private final MpaStorage mpaStorage;
     private final GenreStorage genreStorage;
-    private final DirectorStorage directorStorage; // добавлено хранилище режиссёров
+    private final DirectorStorage directorStorage;
 
-    // Изменяем SQL-запросы, добавляем выборку режиссёров
     private static final String FIND_BY_ID_QUERY = "SELECT\n" +
             "    f.id, f.name,\n" +
             "    f.description, \n" +
@@ -68,10 +67,10 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
             "VALUES (?, ?, ?, ?, ?)";
 
     private static final String INSERT_TO_FILM_GENRE = "INSERT INTO films_genre(film_id, genre_id) VALUES (?, ?)";
-    private static final String INSERT_TO_FILM_DIRECTOR = "INSERT INTO film_directors(film_id, director_id) VALUES (?, ?)"; // добавлено
+    private static final String INSERT_TO_FILM_DIRECTOR = "INSERT INTO film_directors(film_id, director_id) VALUES (?, ?)";
     private static final String UPDATE_FILM = "UPDATE films SET name=?, description=?, release_date=?, duration=?, mpa_id =? WHERE id=?";
     private static final String UPDATE_FILM_GENRE = "UPDATE films_genre SET genre_id=? WHERE film_id=?";
-    private static final String UPDATE_FILM_DIRECTOR = "DELETE FROM film_directors WHERE film_id=?"; // добавлено при обновлении сначала удаляем старых режиссёров
+    private static final String UPDATE_FILM_DIRECTOR = "DELETE FROM film_directors WHERE film_id=?";
     private static final String INSERT_LIKES = "INSERT INTO film_likes(film_id, user_id) VALUES(?, ?)";
     private static final String REMOVE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? and user_id = ?";
     private static final String FIND_RECOMMENDATIONS_QUERY = """
@@ -108,7 +107,7 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
         super(jdbc, filmMapper);
         this.mpaStorage = mpaStorage;
         this.genreStorage = genreStorage;
-        this.directorStorage = directorStorage; // добавлено
+        this.directorStorage = directorStorage;
     }
 
     public Collection<Film> getFilms() {
@@ -146,9 +145,8 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
             }
         }
 
-        // вставка режиссёров
-        for (Director director : film.getDirectors()) { // добавлено
-            update(INSERT_TO_FILM_DIRECTOR, film.getId(), director.getId()); // добавлено
+        for (Director director : film.getDirectors()) {
+            update(INSERT_TO_FILM_DIRECTOR, film.getId(), director.getId());
         }
 
         return film;
@@ -163,7 +161,7 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
                 UPDATE_FILM,
                 film.getName(),
                 film.getDescription(),
-                Timestamp.valueOf(film.getReleaseDate().atStartOfDay()), // исправлено
+                Timestamp.valueOf(film.getReleaseDate().atStartOfDay()),
                 film.getDuration(),
                 film.getMpa().getId(),
                 film.getId()
@@ -171,7 +169,6 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
 
         update(UPDATE_FILM_DIRECTOR, film.getId());
 
-        // Обновление режиссёров сначала удаляем старые, потом вставляем новые
         List<Director> directors = film.getDirectors();
         if (directors != null && !directors.isEmpty()) {
             for (Director director : film.getDirectors()) {
@@ -209,7 +206,6 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
                 "WHERE d.id = ? " +
                 "GROUP BY f.id, f.name, f.description, f.release_date, f.duration, r.id, r.mpa_name ";
 
-        // Добавляем сортировку в зависимости от параметра sortBy
         switch (sortBy) {
             case "year":
                 baseQuery += "ORDER BY f.release_date";
