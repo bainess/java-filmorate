@@ -222,7 +222,6 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
 
         return findMany(baseQuery, directorId); // findMany из BaseRepository возвращает Collection<Film>
     }
-}
 
     @Override
     public Collection<Film> getRecommendations(Long userId) {
