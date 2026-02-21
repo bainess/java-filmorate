@@ -86,4 +86,11 @@ public class UserController {
         log.info("Requested recommendations for user {}", id);
         return new ResponseEntity<>(userService.getRecommendations(id), HttpStatus.OK);
     }
+
+    @DeleteMapping("/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteUser(@PathVariable Long userId) {
+        log.info("DELETE /users/{} - Deleting user", userId);
+        userService.deleteUser(userId);
+    }
 }

@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -83,6 +84,12 @@ public class FilmService {
             films = films.stream().limit(count).toList();
         }
         return films;
+    }
+
+    public void deleteFilm(Long id) {
+        filmStorage.findFilm(id)
+                .orElseThrow(() -> new NotFoundException("Film with id " + id + " not found"));
+        filmStorage.deleteFilm(id);
     }
 }
 

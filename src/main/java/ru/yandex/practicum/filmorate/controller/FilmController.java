@@ -20,7 +20,7 @@ import java.util.Collection;
 @RestController
 @Validated
 @RequestMapping("/films")
-public class    FilmController {
+public class FilmController {
     private final FilmService filmService;
 
     @Autowired
@@ -31,7 +31,7 @@ public class    FilmController {
     @GetMapping
     public ResponseEntity<Collection<FilmDto>> getFilms() {
         log.info("GET/films - Number of films: {}", filmService.getFilms().size());
-            return new ResponseEntity<>(filmService.getFilms(), HttpStatus.OK);
+        return new ResponseEntity<>(filmService.getFilms(), HttpStatus.OK);
     }
 
     @PostMapping
@@ -73,6 +73,13 @@ public class    FilmController {
     @ResponseStatus(HttpStatus.OK)
     public void removeLikes(@PathVariable("filmId") Long filmId, @PathVariable("userId") Long userId) {
         filmService.removeLike(filmId, userId);
+    }
+
+    @DeleteMapping("/{filmId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteFilm(@PathVariable Long filmId) {
+        log.info("DELETE /films/{} - Deleting film", filmId);
+        filmService.deleteFilm(filmId);
     }
 
 }
