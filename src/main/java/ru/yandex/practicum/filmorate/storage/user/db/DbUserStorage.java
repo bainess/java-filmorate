@@ -3,15 +3,12 @@ package ru.yandex.practicum.filmorate.storage.user.db;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.BaseRepository;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.UserFriend;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.sql.Date;
-import java.sql.PreparedStatement;
 import java.util.*;
 
 @Primary
@@ -24,7 +21,7 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
             "    users.login,\n" +
             "    users.email,\n" +
             "    users.birthday,\n" +
-            "    ARRAY_AGG(DISTINCT user_friends.friend_id) FILTER (WHERE user_friends.friend_id IS NOT NULL) AS friends_ids\n" +
+            "    STRING_AGG(CAST(user_friends.friend_id AS VARCHAR), ',') AS friends_ids\n" +
             "FROM users\n" +
             "LEFT JOIN user_friends ON users.id = user_friends.user_id\n" +
             "WHERE users.id = ? \n" +
@@ -40,7 +37,7 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
             "    users.login,\n" +
             "    users.email,\n" +
             "    users.birthday,\n" +
-            "    ARRAY_AGG(DISTINCT user_friends.friend_id) FILTER (WHERE user_friends.friend_id IS NOT NULL) AS friends_ids\n" +
+            "    STRING_AGG(CAST(user_friends.friend_id AS VARCHAR), ',') AS friends_ids\n" +
             "FROM users\n" +
             "LEFT JOIN user_friends ON users.id = user_friends.user_id\n" +
             "WHERE users.email = ? \n" +
@@ -50,15 +47,13 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
             "    users.login, \n" +
             "    users.email, \n" +
             "    users.birthday; ";
-
     private static final String FIND_ALL_USERS = "SELECT \n" +
             "    users.id, \n" +
             "    users.name,\n" +
             "    users.login,\n" +
             "    users.email,\n" +
             "    users.birthday,\n" +
-            "    ARRAY_AGG(DISTINCT user_friends.friend_id)  \n" +
-            " FILTER (WHERE user_friends.friend_id IS NOT NULL) AS friends_ids\n" +
+            "    STRING_AGG(CAST(user_friends.friend_id AS VARCHAR), ',') AS friends_ids\n" +
             "FROM users\n" +
             "LEFT JOIN user_friends ON users.id = user_friends.user_id\n" +
             "GROUP BY \n" +
@@ -67,7 +62,8 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
             "    users.login, \n" +
             "    users.email, \n" +
             "    users.birthday; ";
-
+    private static final String INSERT_USER = "INSERT INTO users (name, login, email, birthday) " +
+            "VALUES (?, ?, ?, ?)";
     private static final String UPDATE_USER = "UPDATE users SET name=?, login=?, email=?, birthday=? WHERE id=?";
     private static final String INSERT_FRIEND = "INSERT INTO user_friends(user_id, friend_id) VALUES (?, ?)";
     private static final String FIND_USER_FRIENDS = "SELECT * FROM user_friends WHERE user_id = ?";
@@ -96,19 +92,26 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
 
     @Override
     public User createUser(User user) {
-        String sqlQuery = "INSERT INTO users (name, login, email, birthday) VALUES (?, ?, ?, ?)";
-        KeyHolder keyHolder = new GeneratedKeyHolder();
+        long id = insert(
+                INSERT_USER,
+                user.getName(),
+                user.getLogin(),
+                user.getEmail(),
+                user.getBirthday()
+        );
+        user.setId(id);
 
-        jdbcTemplate.update(connection -> {
-            PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"id"});
-            stmt.setString(1, user.getName());
-            stmt.setString(2, user.getLogin());
-            stmt.setString(3, user.getEmail());
-            stmt.setDate(4, Date.valueOf(user.getBirthday()));
-            return stmt;
-        }, keyHolder);
-
-        user.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
+        if (user.getFriends() != null) {
+            for (UserFriend friendId : user.getFriends()) {
+                if (friendId != null) {
+                    insert(
+                            INSERT_FRIEND,
+                            user.getId(),
+                            friendId
+                    );
+                }
+            }
+        }
         return user;
     }
 

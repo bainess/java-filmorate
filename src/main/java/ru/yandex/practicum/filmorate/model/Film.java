@@ -31,7 +31,11 @@ public class Film {
     private Integer duration;
 
     private MpaName mpa;
+
+    private List<Director> directors = new ArrayList<>();   // Добавлено
+
     private List<Genre> genres = new ArrayList<>();
+
     private List<Long> likes = new ArrayList<>();
 
     public void addLikes(List<Long> userIds) {

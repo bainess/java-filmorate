@@ -9,10 +9,12 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MpaName;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Primary
@@ -20,55 +22,55 @@ import java.util.Optional;
 public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
     private final MpaStorage mpaStorage;
     private final GenreStorage genreStorage;
+    private final DirectorStorage directorStorage;
+
     private static final String FIND_BY_ID_QUERY = "SELECT\n" +
-            "                f.id, f.name,\n" +
-            "                f.description, \n" +
-            "                f.release_date,\n" +
-            "                f.duration,\n" +
-            "                r.id AS mpa_id,\n" +
-            "                 r.mpa_name, \n" +
-            "                GROUP_CONCAT(DISTINCT g.id || ':' || g.name ORDER BY g.id  SEPARATOR ',') AS genres_data, \n" +
-            "                ARRAY_AGG(DISTINCT fl.user_id) FILTER (WHERE fl.user_id IS NOT NULL) AS film_likes\n" +
-            "            FROM films f \n" +
-            "           LEFT JOIN ratings r ON f.mpa_id = r.id \n" +
-            "           LEFT JOIN films_genre fg ON f.id = fg.film_id \n" +
-            "           LEFT JOIN genres g ON fg.genre_id = g.id\n" +
-            "           LEFT JOIN film_likes fl ON f.id = fl.film_id \n" +
-            "           WHERE f.id = ? \n" +
-            "           GROUP BY\n" +
-            "                f.id, f.name,\n" +
-            "                f.description,\n" +
-            "                 f.release_date, \n" +
-            "                f.duration,\n" +
-            "                 r.id, \n" +
-            "                r.mpa_name;";
+            "    f.id, f.name,\n" +
+            "    f.description, \n" +
+            "    f.release_date,\n" +
+            "    f.duration,\n" +
+            "    r.id AS mpa_id,\n" +
+            "    r.mpa_name, \n" +
+            "    STRING_AGG(DISTINCT g.id || ':' || g.name, ',') AS genres_data, \n" +
+            "    STRING_AGG(DISTINCT CAST(fl.user_id AS VARCHAR), ',') AS film_likes, \n" +
+            "    STRING_AGG(DISTINCT d.id || ':' || d.director_name, ',') AS directors_data \n" +
+            "FROM films f \n" +
+            "LEFT JOIN ratings r ON f.mpa_id = r.id \n" +
+            "LEFT JOIN films_genre fg ON f.id = fg.film_id \n" +
+            "LEFT JOIN genres g ON fg.genre_id = g.id\n" +
+            "LEFT JOIN film_likes fl ON f.id = fl.film_id \n" +
+            "LEFT JOIN film_directors fd ON f.id = fd.film_id \n" +
+            "LEFT JOIN directors d ON fd.director_id = d.id \n" +
+            "WHERE f.id = ? \n" +
+            "GROUP BY f.id, f.name, f.description, f.release_date, f.duration, r.id, r.mpa_name;";
+
     private static final String FIND_ALL_QUERY = "SELECT\n" +
-            "                f.id, f.name,\n" +
-            "                f.description, \n" +
-            "                f.release_date,\n" +
-            "                f.duration,\n" +
-            "                r.id AS mpa_id,\n" +
-            "                 r.mpa_name, \n" +
-            "                GROUP_CONCAT(DISTINCT g.id || ':' || g.name ORDER BY g.id  SEPARATOR ',') AS genres_data, \n" +
-            "                ARRAY_AGG(DISTINCT fl.user_id) FILTER (WHERE fl.user_id IS NOT NULL) AS film_likes\n" +
-            "            FROM films f \n" +
-            "           LEFT JOIN ratings r ON f.mpa_id = r.id \n" +
-            "           LEFT JOIN films_genre fg ON f.id = fg.film_id \n" +
-            "           LEFT JOIN genres g ON fg.genre_id = g.id\n" +
-            "           LEFT JOIN film_likes fl ON f.id = fl.film_id \n" +
-            "           GROUP BY\n" +
-            "                f.id, f.name,\n" +
-            "                f.description,\n" +
-            "                 f.release_date, \n" +
-            "                f.duration,\n" +
-            "                 r.id, \n" +
-            "                r.mpa_name;";
+            "    f.id, f.name,\n" +
+            "    f.description, \n" +
+            "    f.release_date,\n" +
+            "    f.duration,\n" +
+            "    r.id AS mpa_id,\n" +
+            "    r.mpa_name, \n" +
+            "    STRING_AGG(DISTINCT g.id || ':' || g.name, ',') AS genres_data, \n" +
+            "    STRING_AGG(DISTINCT CAST(fl.user_id AS VARCHAR), ',') AS film_likes, \n" +
+            "    STRING_AGG(DISTINCT d.id || ':' || d.director_name, ',') AS directors_data \n" +
+            "FROM films f \n" +
+            "LEFT JOIN ratings r ON f.mpa_id = r.id \n" +
+            "LEFT JOIN films_genre fg ON f.id = fg.film_id \n" +
+            "LEFT JOIN genres g ON fg.genre_id = g.id\n" +
+            "LEFT JOIN film_likes fl ON f.id = fl.film_id \n" +
+            "LEFT JOIN film_directors fd ON f.id = fd.film_id \n" +
+            "LEFT JOIN directors d ON fd.director_id = d.id \n" +
+            "GROUP BY f.id, f.name, f.description, f.release_date, f.duration, r.id, r.mpa_name;";
+
     private static final String INSERT_QUERY = "INSERT INTO films (name, description, release_date, duration, mpa_id)" +
             "VALUES (?, ?, ?, ?, ?)";
+
     private static final String INSERT_TO_FILM_GENRE = "INSERT INTO films_genre(film_id, genre_id) VALUES (?, ?)";
-    private static final String INSERT_TO_FILM_RATING = "INSERT INTO films_ratings(film_id, mpa_name) VALUES (?, ?)";
+    private static final String INSERT_TO_FILM_DIRECTOR = "INSERT INTO film_directors(film_id, director_id) VALUES (?, ?)";
     private static final String UPDATE_FILM = "UPDATE films SET name=?, description=?, release_date=?, duration=?, mpa_id =? WHERE id=?";
     private static final String UPDATE_FILM_GENRE = "UPDATE films_genre SET genre_id=? WHERE film_id=?";
+    private static final String UPDATE_FILM_DIRECTOR = "DELETE FROM film_directors WHERE film_id=?";
     private static final String INSERT_LIKES = "INSERT INTO film_likes(film_id, user_id) VALUES(?, ?)";
     private static final String REMOVE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? and user_id = ?";
     private static final String FIND_RECOMMENDATIONS_QUERY = """
@@ -101,10 +103,11 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
             \s""";
     private static final String DELETE_FILM_QUERY = "DELETE FROM films WHERE id = ?";
 
-    public DbFilmStorage(JdbcTemplate jdbc, RowMapper<Film> filmMapper, MpaStorage mpaStorage, GenreStorage genreStorage) {
+    public DbFilmStorage(JdbcTemplate jdbc, RowMapper<Film> filmMapper, MpaStorage mpaStorage, GenreStorage genreStorage, DirectorStorage directorStorage) {
         super(jdbc, filmMapper);
         this.mpaStorage = mpaStorage;
         this.genreStorage = genreStorage;
+        this.directorStorage = directorStorage;
     }
 
     public Collection<Film> getFilms() {
@@ -142,14 +145,15 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
             }
         }
 
+        for (Director director : film.getDirectors()) {
+            update(INSERT_TO_FILM_DIRECTOR, film.getId(), director.getId());
+        }
+
         return film;
     }
 
     public Optional<Film> findFilm(Long id) {
-        return findOne(
-                FIND_BY_ID_QUERY,
-                id
-        );
+        return findOne(FIND_BY_ID_QUERY, id);
     }
 
     public Film updateFilm(Film film) {
@@ -157,28 +161,63 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
                 UPDATE_FILM,
                 film.getName(),
                 film.getDescription(),
-                film.getReleaseDate(),
+                Timestamp.valueOf(film.getReleaseDate().atStartOfDay()),
                 film.getDuration(),
                 film.getMpa().getId(),
                 film.getId()
         );
+
+        update(UPDATE_FILM_DIRECTOR, film.getId());
+
+        List<Director> directors = film.getDirectors();
+        if (directors != null && !directors.isEmpty()) {
+            for (Director director : film.getDirectors()) {
+                update(INSERT_TO_FILM_DIRECTOR, film.getId(), director.getId());
+            }
+        }
+
         return film;
     }
 
     public void addLike(Long filmId, Long userId) {
-        update(
-                INSERT_LIKES,
-                filmId,
-                userId
-        );
+        update(INSERT_LIKES, filmId, userId);
     }
 
     public void removeLike(Long filmId, Long userId) {
-        update(
-                REMOVE_LIKE_QUERY,
-                filmId,
-                userId
-        );
+        update(REMOVE_LIKE_QUERY, filmId, userId);
+    }
+
+    //Получение списка фильмов конкретного режиссёра с сортировкой.
+
+    public Collection<Film> getFilmsByDirector(long directorId, String sortBy) {
+        String baseQuery = "SELECT " +
+                "f.id, f.name, f.description, f.release_date, f.duration, " +
+                "r.id AS mpa_id, r.mpa_name, " +
+                "STRING_AGG(DISTINCT g.id || ':' || g.name, ',') AS genres_data, " +
+                "STRING_AGG(DISTINCT CAST(fl.user_id AS VARCHAR), ',') AS film_likes, " +
+                "STRING_AGG(DISTINCT d.id || ':' || d.director_name, ',') AS directors_data " +
+                "FROM films f " +
+                "LEFT JOIN ratings r ON f.mpa_id = r.id " +
+                "LEFT JOIN films_genre fg ON f.id = fg.film_id " +
+                "LEFT JOIN genres g ON fg.genre_id = g.id " +
+                "LEFT JOIN film_likes fl ON f.id = fl.film_id " +
+                "LEFT JOIN film_directors fd ON f.id = fd.film_id " +
+                "LEFT JOIN directors d ON fd.director_id = d.id " +
+                "WHERE d.id = ? " +
+                "GROUP BY f.id, f.name, f.description, f.release_date, f.duration, r.id, r.mpa_name ";
+
+        switch (sortBy) {
+            case "year":
+                baseQuery += "ORDER BY f.release_date";
+                break;
+            case "likes":
+                baseQuery += "ORDER BY COUNT(DISTINCT fl.user_id) DESC";
+                break;
+            default:
+                throw new IllegalArgumentException("sortBy must be 'year' or 'likes'");
+        }
+
+        return findMany(baseQuery, directorId); // findMany из BaseRepository возвращает Collection<Film>
     }
 
     @Override

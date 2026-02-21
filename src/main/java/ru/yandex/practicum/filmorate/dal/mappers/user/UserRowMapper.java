@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Arrays;
 
 @Slf4j
 @Component
@@ -30,15 +29,15 @@ public class UserRowMapper implements RowMapper<User> {
             user.setBirthday(birthday.toLocalDateTime().toLocalDate());
         }
 
-        if (resultSet.getString("friends_ids") != null) {
-            java.sql.Array sqlArray = resultSet.getArray("friends_ids");
-            if (sqlArray != null) {
-                Object[] data = (Object[]) sqlArray.getArray();
-                Arrays.stream(data)
-                        .map(obj -> ((Number) obj).longValue())
-                        .forEach(user::addFriendToList);
+        if (resultSet.getString("friends_ids") != null && !resultSet.getString("friends_ids").isBlank()) {
+            String friendsStr = resultSet.getString("friends_ids"); // пример: "1,2,5"
+            String[] ids = friendsStr.split(",");
+            for (String s : ids) {
+                if (!s.isBlank()) {
+                    user.addFriendToList(Long.parseLong(s.trim()));
+                }
             }
-       }
+        }
         return user;
     }
 }
