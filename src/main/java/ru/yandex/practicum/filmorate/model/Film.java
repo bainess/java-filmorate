@@ -6,6 +6,7 @@ import lombok.*;
 import ru.yandex.practicum.filmorate.annotation.ValidReleaseDate;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Setter
@@ -30,8 +31,8 @@ public class Film {
     private Integer duration;
 
     private MpaName mpa;
-    private List<Genre> genres;
-    private List<Long> likes;
+    private List<Genre> genres = new ArrayList<>();
+    private List<Long> likes = new ArrayList<>();
 
     public void addLikes(List<Long> userIds) {
         likes = userIds;

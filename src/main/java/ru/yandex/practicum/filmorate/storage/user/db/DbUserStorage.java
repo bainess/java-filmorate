@@ -102,13 +102,6 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
         );
         user.setId(id);
 
-        for (UserFriend friendId : user.getFriends()) {
-            insert(
-                    INSERT_FRIEND,
-                    user.getId(),
-                    friendId
-            );
-        }
         return user;
     }
 
