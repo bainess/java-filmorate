@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.dto.user.NewUserRequest;
@@ -17,16 +17,11 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.util.*;
 
 @Service
+@AllArgsConstructor
 public class UserService {
     private UserStorage userStorage;
     private FilmStorage filmStorage;
-
-    @Autowired
-    public UserService(UserStorage userStorage, FilmStorage filmStorage) {
-
-        this.userStorage = userStorage;
-        this.filmStorage = filmStorage;
-    }
+    private final EventService eventService;
 
     public UserDto getUserById(Long id) {
         UserDto dto = userStorage.getUser(id)
@@ -84,6 +79,7 @@ public class UserService {
             throw new NotFoundException("User " + friendId + " was not found");
         }
         userStorage.saveFriend(userId, friendId);
+        eventService.createEvent(userId, "FRIEND", "ADD", friendId);
     }
 
     public void removeFromFriends(Long user1, Long user2) {
@@ -94,6 +90,7 @@ public class UserService {
             throw new NotFoundException("User " + user2 + " was not found");
         }
         userStorage.removeFromFriends(user1, user2);
+        eventService.createEvent(user1, "FRIEND", "REMOVE", user2);
     }
 
     private Long removeFriend(Long userId, Long friendId) {

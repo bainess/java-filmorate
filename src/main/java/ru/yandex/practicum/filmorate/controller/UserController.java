@@ -33,8 +33,9 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/feed")
-    public ResponseEntity<Collection<Event>> getUserFeed(@RequestParam ("userId") Long userId) {
-        return new ResponseEntity<>(eventService.getEvents(userId), HttpStatus.OK );
+    public ResponseEntity<Collection<Event>> getUserFeed(@PathVariable ("userId") Long userId) {
+        log.info("User id {}", userId);
+        return new ResponseEntity<>(eventService.getEvents(userId), HttpStatus.OK);
     }
 
     @GetMapping("/{userId}/friends/common/{friendId}")

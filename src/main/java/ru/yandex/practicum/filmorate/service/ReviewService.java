@@ -21,6 +21,7 @@ public class ReviewService {
     private final DbReviewStorage dbReviewStorage;
     private final DbFilmStorage dbFilmStorage;
     private final DbUserStorage dbUserStorage;
+    private final EventService eventService;
 
     public Collection<ReviewDto> getReviews() {
         return dbReviewStorage.getReviews().stream()
@@ -43,6 +44,7 @@ public class ReviewService {
         Review review = ReviewMapper.mapToReview(request);
         checkFilmAndUserExistence(review.getFilmId(), review.getUserId());
         review = dbReviewStorage.createReview(review);
+        eventService.createEvent(review.getUserId(), "REVIEW", "ADD", review.getId());
         return ReviewMapper.mapToReviewDto(review);
     }
 
@@ -51,12 +53,16 @@ public class ReviewService {
                 .map(review -> ReviewMapper.updateReviewFields(request, review))
                 .orElseThrow(() -> new NotFoundException("Review not found"));
         updatedReview = dbReviewStorage.updateReview(updatedReview);
+        eventService.createEvent(updatedReview.getUserId(), "REVIEW", "UPDATE", updatedReview.getId());
         return ReviewMapper.mapToReviewDto(updatedReview);
     }
 
     public void removeReview(Long id) {
-        dbReviewStorage.getReview(id).orElseThrow(() -> new NotFoundException("Review not found, id=" + id));
+        Review review = dbReviewStorage.getReview(id).orElseThrow(() -> new NotFoundException("Review not found, id=" + id));
+        long userId = review.getUserId();
+        long reviewId = review.getId();
         dbReviewStorage.removeReview(id);
+        eventService.createEvent(userId, "REVIEW", "REMOVE", reviewId);
     }
 
     public ReviewDto addLikeOrDislike(Long reviewId, Long userId, boolean isLike) {
