@@ -82,7 +82,7 @@ public class FilmController {
             @RequestParam(name = "sortBy", required = false, defaultValue = "year") String sortBy) {
         return new ResponseEntity<>(filmService.getFilmsByDirector(directorId, sortBy), HttpStatus.OK);
     }
-    
+
     @DeleteMapping("/{filmId}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteFilm(@PathVariable Long filmId) {
