@@ -20,12 +20,14 @@ import java.util.*;
 public class UserService {
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
+    private final EventService eventService;
 
     @Autowired
-    public UserService(UserStorage userStorage, FilmStorage filmStorage) {
+    public UserService(UserStorage userStorage, FilmStorage filmStorage, EventService eventService) {
 
         this.userStorage = userStorage;
         this.filmStorage = filmStorage;
+        this.eventService = eventService;
     }
 
     public UserDto getUserById(Long id) {
@@ -82,17 +84,19 @@ public class UserService {
         if (userStorage.getUser(friendId).isEmpty()) {
             throw new NotFoundException("User " + friendId + " was not found");
         }
+        eventService.createEvent(userId, "ADD", "FRIEND", friendId);
         userStorage.saveFriend(userId, friendId);
     }
 
-    public void removeFromFriends(Long user1, Long user2) {
-        if (userStorage.getUser(user1).isEmpty()) {
-            throw new NotFoundException("User " + user1 + " was not found");
+    public void removeFromFriends(Long userId, Long friendId) {
+        if (userStorage.getUser(userId).isEmpty()) {
+            throw new NotFoundException("User " + userId + " was not found");
         }
-        if (userStorage.getUser(user2).isEmpty()) {
-            throw new NotFoundException("User " + user2 + " was not found");
+        if (userStorage.getUser(friendId).isEmpty()) {
+            throw new NotFoundException("User " + friendId + " was not found");
         }
-        userStorage.removeFromFriends(user1, user2);
+        eventService.createEvent(userId, "REMOVE", "FRIEND", friendId);
+        userStorage.removeFromFriends(userId, friendId);
     }
 
     private Long removeFriend(Long userId, Long friendId) {

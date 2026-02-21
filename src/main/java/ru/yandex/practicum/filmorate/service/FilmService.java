@@ -20,11 +20,13 @@ import java.util.stream.Collectors;
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final EventService eventService;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage, EventService eventService) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+        this.eventService = eventService;
     }
 
     public Collection<FilmDto> getFilms() {
@@ -60,6 +62,7 @@ public class FilmService {
         if (userStorage.getUser(userId).isEmpty()) {
             throw new NotFoundException("User " + userId + " not found");
         }
+        eventService.createEvent(userId, "ADD", "LIKE", filmId);
         filmStorage.addLike(filmId, userId);
     }
 
@@ -70,6 +73,7 @@ public class FilmService {
         if (userStorage.getUser(userId).isEmpty()) {
             throw new NotFoundException("User " + userId + " not found");
         }
+        eventService.createEvent(userId, "REMOVE", "LIKE", filmId);
         filmStorage.removeLike(filmId, userId);
     }
 
