@@ -2,13 +2,16 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.dto.user.NewUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.mappers.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.UserFriend;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.*;
@@ -16,11 +19,13 @@ import java.util.*;
 @Service
 public class UserService {
     private UserStorage userStorage;
+    private FilmStorage filmStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(UserStorage userStorage, FilmStorage filmStorage) {
 
         this.userStorage = userStorage;
+        this.filmStorage = filmStorage;
     }
 
     public UserDto getUserById(Long id) {
@@ -42,11 +47,11 @@ public class UserService {
         if (userStorage.getUser(id).isEmpty()) {
             throw new NotFoundException("User not found");
         }
-            User updatedUser = userStorage.getUser(id)
-                    .map(user -> UserMapper.updateUserFields(request, user))
-                    .orElseThrow(() -> new NotFoundException("User not found"));
-            updatedUser = userStorage.updateUser(updatedUser);
-            return UserMapper.mapToUserDto(updatedUser);
+        User updatedUser = userStorage.getUser(id)
+                .map(user -> UserMapper.updateUserFields(request, user))
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        updatedUser = userStorage.updateUser(updatedUser);
+        return UserMapper.mapToUserDto(updatedUser);
     }
 
 
@@ -78,7 +83,7 @@ public class UserService {
         if (userStorage.getUser(friendId).isEmpty()) {
             throw new NotFoundException("User " + friendId + " was not found");
         }
-        userStorage.saveFriend(userId,friendId);
+        userStorage.saveFriend(userId, friendId);
     }
 
     public void removeFromFriends(Long user1, Long user2) {
@@ -94,6 +99,15 @@ public class UserService {
     private Long removeFriend(Long userId, Long friendId) {
         userStorage.getUser(userId).get().getFriends().remove(friendId);
         return friendId;
+    }
+
+    public Collection<FilmDto> getRecommendations(Long userId) {
+        userStorage.getUser(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        return filmStorage.getRecommendations(userId).stream()
+                .map(FilmMapper::mapToFilmDto)
+                .toList();
     }
 
 }
