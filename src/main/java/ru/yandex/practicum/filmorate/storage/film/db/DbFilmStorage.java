@@ -13,6 +13,8 @@ import ru.yandex.practicum.filmorate.model.MpaName;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -264,5 +266,67 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
                         ORDER BY likes_count DESC;
                 """;
         return findMany(findCommonFilms, userId, friendId);
+    }
+
+    @Override
+    public Collection<Film> searchFilms(String query, String by) {
+        if (query == null || query.isBlank() || by == null || by.isBlank()) {
+            throw new IllegalArgumentException("query and by must be non-empty");
+        }
+
+        String[] byFields = Arrays.stream(by.toLowerCase().split(","))
+                .map(String::trim)
+                .toArray(String[]::new);
+
+        boolean searchTitle = Arrays.asList(byFields).contains("title");
+        boolean searchDirector = Arrays.asList(byFields).contains("director");
+
+        if (!searchTitle && !searchDirector) {
+            throw new IllegalArgumentException("by must contain 'title' or 'director'");
+        }
+
+        // Базовый SQL
+        String baseSql = """
+            SELECT
+                f.id, f.name, f.description, f.release_date, f.duration,
+                r.id AS mpa_id, r.mpa_name,
+                STRING_AGG(DISTINCT g.id  ':'  g.name, ',') AS genres_data,
+                STRING_AGG(DISTINCT CAST(fl.user_id AS VARCHAR), ',') AS film_likes,
+                STRING_AGG(DISTINCT d.id  ':'  d.director_name, ',') AS directors_data
+            FROM films f
+            LEFT JOIN ratings r ON f.mpa_id = r.id
+            LEFT JOIN films_genre fg ON f.id = fg.film_id
+            LEFT JOIN genres g ON fg.genre_id = g.id
+            LEFT JOIN film_likes fl ON f.id = fl.film_id
+            LEFT JOIN film_directors fd ON f.id = fd.film_id
+            LEFT JOIN directors d ON fd.director_id = d.id
+            """;
+
+        // Формируем WHERE динамически
+        StringBuilder where = new StringBuilder(" WHERE ");
+        List<Object> params = new ArrayList<>();
+        String likeQuery = "%" + query.toLowerCase() + "%";
+
+        List<String> conditions = new ArrayList<>();
+        if (searchTitle) {
+            conditions.add("LOWER(f.name) LIKE ?");
+            params.add(likeQuery);
+        }
+        if (searchDirector) {
+            conditions.add("LOWER(d.director_name) LIKE ?");
+            params.add(likeQuery);
+        }
+
+        where.append(String.join(" OR ", conditions));
+
+        // GROUP BY + сортировка по лайкам
+        String groupAndOrder = """
+            GROUP BY f.id, r.id
+            ORDER BY COUNT(DISTINCT fl.user_id) DESC
+            """;
+
+        String finalSql = baseSql + where + groupAndOrder;
+
+        return findMany(finalSql, params.toArray());
     }
 }
