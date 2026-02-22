@@ -297,9 +297,7 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
             conditions.add("LOWER(d.director_name) LIKE ?");
             params.add(likeQuery);
         }
-
         String whereClause = " WHERE " + String.join(" OR ", conditions);
-        
         String sql = """
                 SELECT DISTINCT
                     f.id, f.name, f.description, f.release_date, f.duration,
