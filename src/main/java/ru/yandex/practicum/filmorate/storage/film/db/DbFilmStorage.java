@@ -285,10 +285,10 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
             throw new IllegalArgumentException("by must contain 'title' or 'director'");
         }
 
-        List<String> conditions = new ArrayList<>();
-        List<Object> params = new ArrayList<>();
         String likeQuery = "%" + query.toLowerCase() + "%";
 
+        List<String> conditions = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
         if (searchTitle) {
             conditions.add("LOWER(f.name) LIKE ?");
             params.add(likeQuery);
@@ -299,14 +299,14 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
         }
 
         String whereClause = " WHERE " + String.join(" OR ", conditions);
-
-        String finalSql = """
-                SELECT
+        
+        String sql = """
+                SELECT DISTINCT
                     f.id, f.name, f.description, f.release_date, f.duration,
                     r.id AS mpa_id, r.mpa_name,
-                    GROUP_CONCAT(DISTINCT g.id  ':'  g.name SEPARATOR ',') AS genres_data,
-                    GROUP_CONCAT(DISTINCT fl.user_id SEPARATOR ',') AS film_likes,
-                    GROUP_CONCAT(DISTINCT d.id  ':'  d.director_name SEPARATOR ',') AS directors_data
+                    STRING_AGG(DISTINCT g.id  ':'  g.name, ',') AS genres_data,
+                    STRING_AGG(DISTINCT CAST(fl.user_id AS VARCHAR), ',') AS film_likes,
+                    STRING_AGG(DISTINCT d.id  ':'  d.director_name, ',') AS directors_data
                 FROM films f
                 LEFT JOIN ratings r ON f.mpa_id = r.id
                 LEFT JOIN films_genre fg ON f.id = fg.film_id
@@ -319,7 +319,6 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
                 ORDER BY COUNT(DISTINCT fl.user_id) DESC
                 """;
 
-        List<Film> films = findMany(finalSql, params.toArray());
-        return films.stream().distinct().toList();
+        return findMany(sql, params.toArray());
     }
 }
