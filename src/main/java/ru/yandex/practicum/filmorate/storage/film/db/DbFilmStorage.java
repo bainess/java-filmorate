@@ -6,10 +6,10 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.BaseRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MpaName;
-import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.sql.Timestamp;
@@ -228,5 +228,41 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
     @Override
     public void deleteFilm(Long id) {
         update(DELETE_FILM_QUERY, id);
+    }
+
+    @Override
+    public Collection<Film> getCommonFilms(Long userId, Long friendId) {
+        String findCommonFilms = """
+                        SELECT
+                            f.*,
+                            r.mpa_name,
+                            (SELECT STRING_AGG(CONCAT(g.id, ':', g.name), ',')
+                             FROM films_genre fg
+                             JOIN genres g ON fg.genre_id = g.id
+                             WHERE fg.film_id = f.id) as genres_data,
+                            (SELECT STRING_AGG(CONCAT(d.id, ':', d.director_name), ',')
+                             FROM film_directors fd
+                             JOIN directors d ON fd.director_id = d.id
+                             WHERE fd.film_id = f.id) as directors_data,
+                            (SELECT STRING_AGG(fl.user_id::text, ',')
+                             FROM film_likes fl
+                             WHERE fl.film_id = f.id) as film_likes,
+                            (SELECT COUNT(*)
+                             FROM film_likes fl
+                             WHERE fl.film_id = f.id) as likes_count
+                        FROM films f
+                        LEFT JOIN ratings r ON f.mpa_id = r.id
+                        WHERE f.id IN (
+                            SELECT film_id
+                            FROM film_likes
+                            WHERE user_id = ?
+                            INTERSECT
+                            SELECT film_id
+                            FROM film_likes
+                            WHERE user_id = ?
+                        )
+                        ORDER BY likes_count DESC;
+                """;
+        return findMany(findCommonFilms, userId, friendId);
     }
 }

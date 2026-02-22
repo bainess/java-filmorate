@@ -90,4 +90,10 @@ public class FilmController {
         filmService.deleteFilm(filmId);
     }
 
+    @GetMapping("/common")
+    public ResponseEntity<Collection<FilmDto>> getCommonFilms(
+            @RequestParam Long userId,
+            @RequestParam Long friendId) {
+        return new ResponseEntity<>(filmService.getCommonFilms(userId, friendId), HttpStatus.OK);
+    }
 }

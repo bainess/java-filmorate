@@ -12,7 +12,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -100,6 +101,12 @@ public class FilmService {
         filmStorage.findFilm(id)
                 .orElseThrow(() -> new NotFoundException("Film with id " + id + " not found"));
         filmStorage.deleteFilm(id);
+    }
+
+    public Collection<FilmDto> getCommonFilms(Long userId, Long friendId) {
+        return filmStorage.getCommonFilms(userId, friendId).stream()
+                .map(FilmMapper::mapToFilmDto)
+                .collect(Collectors.toList());
     }
 }
 

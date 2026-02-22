@@ -9,7 +9,8 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.UserFriend;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Optional;
 
 @Primary
 @Repository
@@ -150,4 +151,6 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
     public void deleteUser(Long id) {
         update(DELETE_USER_QUERY, id);
     }
+
+
 }
