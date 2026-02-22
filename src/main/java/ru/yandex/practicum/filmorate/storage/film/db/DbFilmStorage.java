@@ -297,7 +297,7 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
             conditions.add("LOWER(d.director_name) LIKE ?");
             params.add(likeQuery);
         }
-        String whereClause = conditions.isEmpty() ? "" : " WHERE " + String.join(" OR ", conditions);
+        String whereClause = " WHERE " + String.join(" OR ", conditions);
 
         String sql = """
                 SELECT DISTINCT
@@ -311,22 +311,22 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
                     STRING_AGG(DISTINCT g.id || ':' || g.name, ',') AS genres_data,
                     STRING_AGG(DISTINCT CAST(fl.user_id AS VARCHAR), ',') AS film_likes,
                     STRING_AGG(DISTINCT d.id || ':' || d.director_name, ',') AS directors_data,
-                    COALESCE(likes_count.cnt, 0) AS likes_count
+                    COALESCE(lc.likes_count, 0) AS likes_count
                 FROM films f
                 LEFT JOIN ratings r ON f.mpa_id = r.id
                 LEFT JOIN films_genre fg ON f.id = fg.film_id
                 LEFT JOIN genres g ON fg.genre_id = g.id
                 LEFT JOIN film_likes fl ON f.id = fl.film_id
-                LEFT JOIN film_directors fd ON f.id = fd.film_id
-                LEFT JOIN directors d ON fd.director_id = d.id
                 LEFT JOIN (
-                    SELECT film_id, COUNT(user_id) AS cnt
+                    SELECT film_id, COUNT(user_id) AS likes_count
                     FROM film_likes
                     GROUP BY film_id
-                ) likes_count ON f.id = likes_count.film_id
+                ) lc ON f.id = lc.film_id
+                LEFT JOIN film_directors fd ON f.id = fd.film_id
+                LEFT JOIN directors d ON fd.director_id = d.id
                 """ + whereClause + """
-                GROUP BY f.id, f.name, f.description, f.release_date, f.duration, r.id, r.mpa_name, likes_count.cnt
-                ORDER BY likes_count.cnt DESC
+                GROUP BY f.id, f.name, f.description, f.release_date, f.duration, r.id, r.mpa_name, lc.likes_count
+                ORDER BY likes_count DESC, f.name
                 """;
 
         return findMany(sql, params.toArray());
