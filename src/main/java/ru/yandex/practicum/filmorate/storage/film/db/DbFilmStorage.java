@@ -287,20 +287,20 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
 
         // Базовый SQL
         String baseSql = """
-            SELECT
-                f.id, f.name, f.description, f.release_date, f.duration,
-                r.id AS mpa_id, r.mpa_name,
-                STRING_AGG(DISTINCT g.id  ':'  g.name, ',') AS genres_data,
-                STRING_AGG(DISTINCT CAST(fl.user_id AS VARCHAR), ',') AS film_likes,
-                STRING_AGG(DISTINCT d.id  ':'  d.director_name, ',') AS directors_data
-            FROM films f
-            LEFT JOIN ratings r ON f.mpa_id = r.id
-            LEFT JOIN films_genre fg ON f.id = fg.film_id
-            LEFT JOIN genres g ON fg.genre_id = g.id
-            LEFT JOIN film_likes fl ON f.id = fl.film_id
-            LEFT JOIN film_directors fd ON f.id = fd.film_id
-            LEFT JOIN directors d ON fd.director_id = d.id
-            """;
+                SELECT
+                    f.id, f.name, f.description, f.release_date, f.duration,
+                    r.id AS mpa_id, r.mpa_name,
+                    STRING_AGG(DISTINCT g.id  ':'  g.name, ',') AS genres_data,
+                    STRING_AGG(DISTINCT CAST(fl.user_id AS VARCHAR), ',') AS film_likes,
+                    STRING_AGG(DISTINCT d.id  ':'  d.director_name, ',') AS directors_data
+                FROM films f
+                LEFT JOIN ratings r ON f.mpa_id = r.id
+                LEFT JOIN films_genre fg ON f.id = fg.film_id
+                LEFT JOIN genres g ON fg.genre_id = g.id
+                LEFT JOIN film_likes fl ON f.id = fl.film_id
+                LEFT JOIN film_directors fd ON f.id = fd.film_id
+                LEFT JOIN directors d ON fd.director_id = d.id
+                """;
 
         // Формируем WHERE динамически
         StringBuilder where = new StringBuilder(" WHERE ");
@@ -321,9 +321,9 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
 
         // GROUP BY + сортировка по лайкам
         String groupAndOrder = """
-            GROUP BY f.id, r.id
-            ORDER BY COUNT(DISTINCT fl.user_id) DESC
-            """;
+                GROUP BY f.id, r.id
+                ORDER BY COUNT(DISTINCT fl.user_id) DESC
+                """;
 
         String finalSql = baseSql + where + groupAndOrder;
 
