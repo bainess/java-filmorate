@@ -246,6 +246,38 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
         return findMany(FIND_RECOMMENDATIONS_QUERY, userId, userId, userId);
     }
 
+    /* Эта версия рекомендаций убирает одну проблему из 9
+    @Override
+    public Collection<Film> getRecommendations(Long userId) {
+        String sql = """
+                SELECT f.id, f.name, f.description, f.release_date, f.duration,
+                       r.id AS mpa_id, r.mpa_name,
+                       COALESCE(STRING_AGG(DISTINCT g.id || ':' || g.name, ','), '') AS genres_data,
+                       COALESCE(STRING_AGG(DISTINCT fl.user_id::text, ','), '') AS film_likes,
+                       COALESCE(STRING_AGG(DISTINCT d.id || ':' || d.director_name, ','), '') AS directors_data
+                FROM films f
+                LEFT JOIN ratings r ON f.mpa_id = r.id
+                LEFT JOIN films_genre fg ON f.id = fg.film_id
+                LEFT JOIN genres g ON fg.genre_id = g.id
+                LEFT JOIN film_likes fl ON f.id = fl.film_id
+                LEFT JOIN film_directors fd ON f.id = fd.film_id
+                LEFT JOIN directors d ON fd.director_id = d.id
+                WHERE f.id IN (
+                    SELECT fl2.film_id
+                    FROM film_likes fl1
+                    JOIN film_likes fl2 ON fl1.user_id != fl2.user_id AND fl1.film_id = fl2.film_id
+                    WHERE fl1.user_id = ?
+                      AND fl2.film_id NOT IN (
+                          SELECT film_id FROM film_likes WHERE user_id = ?
+                      )
+                )
+                GROUP BY f.id, r.id, r.mpa_name
+                """;
+
+        return findMany(sql, userId, userId);
+    }
+     */
+
     @Override
     public void deleteFilm(Long id) {
         update(DELETE_FILM_QUERY, id);
