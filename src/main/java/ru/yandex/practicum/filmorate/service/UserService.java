@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.mappers.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.UserFriend;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -64,11 +63,11 @@ public class UserService {
                 .toList();
     }
 
-    public Collection<UserFriend> getFriends(Long id) {
+    public Collection<User> getFriends(Long id) {
         if (userStorage.getUser(id).isEmpty()) {
             throw new NotFoundException("User " + id + " was not found");
         }
-        return userStorage.getUser(id).get().getFriends();
+        return userStorage.getFriends(id);
     }
 
     public UserDto createUser(NewUserRequest request) {
