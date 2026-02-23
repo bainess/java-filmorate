@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.mappers.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.UserFriend;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -57,18 +56,18 @@ public class UserService {
 
 
     public List<UserDto> getCommonFriends(Long userId, Long friendId) {
-        return userStorage.getUser(userId).get().getFriends().stream()
-                .filter(id -> userStorage.getUser(friendId).get().getFriends().contains(id))
-                .map(user -> userStorage.getUser(user.getId()))
-                .map(user -> UserMapper.mapToUserDto(user.get()))
-                .toList();
+        Collection<Long> friends1 = userStorage.getFriends(userId).stream().map(User::getId).toList();
+
+        return userStorage.getFriends(friendId).stream()
+                .filter(user -> friends1.contains(user.getId()))
+                .map(UserMapper::mapToUserDto).toList();
     }
 
-    public Collection<UserFriend> getFriends(Long id) {
+    public Collection<User> getFriends(Long id) {
         if (userStorage.getUser(id).isEmpty()) {
             throw new NotFoundException("User " + id + " was not found");
         }
-        return userStorage.getUser(id).get().getFriends();
+        return userStorage.getFriends(id);
     }
 
     public UserDto createUser(NewUserRequest request) {
