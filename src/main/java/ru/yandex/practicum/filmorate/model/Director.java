@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-//Новый класс
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

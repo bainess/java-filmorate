@@ -96,4 +96,13 @@ public class FilmController {
             @RequestParam Long friendId) {
         return new ResponseEntity<>(filmService.getCommonFilms(userId, friendId), HttpStatus.OK);
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<Collection<FilmDto>> searchFilms(
+            @RequestParam String query,
+            @RequestParam String by) {
+
+        log.info("GET /films/search?query={}&by={}", query, by);
+        return new ResponseEntity<>(filmService.searchFilms(query, by), HttpStatus.OK);
+    }
 }

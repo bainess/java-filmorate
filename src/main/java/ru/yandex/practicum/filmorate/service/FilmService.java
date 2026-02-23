@@ -108,6 +108,10 @@ public class FilmService {
                 .map(FilmMapper::mapToFilmDto)
                 .collect(Collectors.toList());
     }
+
+    public Collection<FilmDto> searchFilms(String query, String by) {
+        return filmStorage.searchFilms(query, by).stream()
+                .map(FilmMapper::mapToFilmDto)
+                .collect(Collectors.toList());
+    }
 }
-
-
