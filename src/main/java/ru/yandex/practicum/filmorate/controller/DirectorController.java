@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +34,7 @@ public class DirectorController {
 
     // POST /directors - создание режиссёра
     @PostMapping
-    public ResponseEntity<Director> createDirector(@RequestBody Director director) {
+    public ResponseEntity<Director> createDirector(@Valid @RequestBody Director director) {
         Director created = directorService.createDirector(director);
         log.info("Director {} was created", created.getName());
         return new ResponseEntity<>(created, HttpStatus.CREATED);
