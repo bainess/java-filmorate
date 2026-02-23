@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
 import lombok.Builder;
 import lombok.Data;
-import ru.yandex.practicum.filmorate.model.UserFriend;
+import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -27,5 +27,5 @@ public class UpdateUserRequest {
     @Past(message = "Date of birth should be in the past")
     private LocalDate birthday;
 
-    private Set<UserFriend> friends = new HashSet<>();
+    private Set<User> friends = new HashSet<>();
 }

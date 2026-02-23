@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.user.db;
+package ru.yandex.practicum.filmorate.storage.user;
 
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -6,8 +6,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.BaseRepository;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.UserFriend;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -86,6 +84,17 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
         return findOne(FIND_USER_BY_EMAIL, email);
     }
 
+    public Collection<User> getFriends(Long userId) {
+        String findFriendsQuery = """
+                SELECT *
+                FROM users
+                LEFT JOIN user_friends AS uf ON users.id = uf.friend_id
+                WHERE uf.user_id = ?
+                ORDER BY uf.friend_id;
+                """;
+        return findMany(findFriendsQuery, userId);
+    }
+
     @Override
     public Collection<User> getUsers() {
         return findMany(FIND_ALL_USERS);
@@ -102,17 +111,6 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
         );
         user.setId(id);
 
-        if (user.getFriends() != null) {
-            for (UserFriend friendId : user.getFriends()) {
-                if (friendId != null) {
-                    insert(
-                            INSERT_FRIEND,
-                            user.getId(),
-                            friendId
-                    );
-                }
-            }
-        }
         return user;
     }
 

@@ -12,7 +12,7 @@ import ru.yandex.practicum.filmorate.dto.user.NewUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.model.Event;
-import ru.yandex.practicum.filmorate.model.UserFriend;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.EventService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -38,8 +38,8 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public ResponseEntity<Collection<UserFriend>> getUserFriends(@PathVariable Long id) {
-        Collection<UserFriend> friends = userService.getFriends(id);
+    public ResponseEntity<Collection<User>> getUserFriends(@PathVariable Long id) {
+        Collection<User> friends = userService.getFriends(id);
         return new ResponseEntity<>(friends, HttpStatus.OK);
     }
 
