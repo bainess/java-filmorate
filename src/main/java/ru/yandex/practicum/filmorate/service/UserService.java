@@ -56,11 +56,11 @@ public class UserService {
 
 
     public List<UserDto> getCommonFriends(Long userId, Long friendId) {
-        return userStorage.getUser(userId).get().getFriends().stream()
-                .filter(id -> userStorage.getUser(friendId).get().getFriends().contains(id))
-                .map(user -> userStorage.getUser(user.getId()))
-                .map(user -> UserMapper.mapToUserDto(user.get()))
-                .toList();
+        Collection<Long> friends1 = userStorage.getFriends(userId).stream().map(User::getId).toList();
+
+        return userStorage.getFriends(friendId).stream()
+                .filter(user -> friends1.contains(user.getId()))
+                .map(UserMapper::mapToUserDto).toList();
     }
 
     public Collection<User> getFriends(Long id) {
