@@ -14,12 +14,11 @@ public class EventRowMapper implements RowMapper<Event> {
     @Override
     public Event mapRow(ResultSet rs, int rowNum) throws SQLException {
         Event event = new Event();
-        event.setId(rs.getLong("id"));
+        event.setEventId(rs.getLong("id"));
         event.setUserId(rs.getLong("user_id"));
         event.setEventType(rs.getString("event_name"));
         event.setEntityId(rs.getLong("entity_id"));
         event.setOperation(rs.getString("operation_name"));
-
         Timestamp ts = rs.getTimestamp("ts");
         event.setTimestamp(ts.toInstant().toEpochMilli());
 

@@ -72,7 +72,8 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
     private static final String UPDATE_FILM = "UPDATE films SET name=?, description=?, release_date=?, duration=?, mpa_id =? WHERE id=?";
     private static final String UPDATE_FILM_GENRE = "UPDATE films_genre SET genre_id=? WHERE film_id=?";
     private static final String UPDATE_FILM_DIRECTOR = "DELETE FROM film_directors WHERE film_id=?";
-    private static final String INSERT_LIKES = "INSERT INTO film_likes(film_id, user_id) VALUES(?, ?)";
+    private static final String INSERT_LIKES //Удачный вариант, починил search
+            = "MERGE INTO film_likes (film_id, user_id) KEY (film_id, user_id) VALUES (?, ?)";
     private static final String REMOVE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? and user_id = ?";
     private static final String FIND_RECOMMENDATIONS_QUERY = """
              SELECT\s
@@ -206,34 +207,39 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
     //Получение списка фильмов конкретного режиссёра с сортировкой.
 
     public Collection<Film> getFilmsByDirector(long directorId, String sortBy) {
-        String baseQuery = "SELECT " +
-                "f.id, f.name, f.description, f.release_date, f.duration, " +
-                "r.id AS mpa_id, r.mpa_name, " +
-                "STRING_AGG(DISTINCT g.id || ':' || g.name, ',') AS genres_data, " +
-                "STRING_AGG(DISTINCT CAST(fl.user_id AS VARCHAR), ',') AS film_likes, " +
-                "STRING_AGG(DISTINCT d.id || ':' || d.director_name, ',') AS directors_data " +
-                "FROM films f " +
-                "LEFT JOIN ratings r ON f.mpa_id = r.id " +
-                "LEFT JOIN films_genre fg ON f.id = fg.film_id " +
-                "LEFT JOIN genres g ON fg.genre_id = g.id " +
-                "LEFT JOIN film_likes fl ON f.id = fl.film_id " +
-                "LEFT JOIN film_directors fd ON f.id = fd.film_id " +
-                "LEFT JOIN directors d ON fd.director_id = d.id " +
-                "WHERE d.id = ? " +
-                "GROUP BY f.id, f.name, f.description, f.release_date, f.duration, r.id, r.mpa_name ";
+        String sql = """
+                SELECT
+                    f.id, f.name, f.description, f.release_date, f.duration,
+                    r.id AS mpa_id, r.mpa_name,
+                    STRING_AGG(DISTINCT g.id || ':' || g.name, ',') AS genres_data,
+                    STRING_AGG(DISTINCT CAST(fl.user_id AS VARCHAR), ',') AS film_likes,
+                    STRING_AGG(DISTINCT d2.id || ':' || d2.director_name, ',') AS directors_data
+                FROM films f
+                LEFT JOIN ratings r ON f.mpa_id = r.id
+                LEFT JOIN films_genre fg ON f.id = fg.film_id
+                LEFT JOIN genres g ON fg.genre_id = g.id
+                LEFT JOIN film_likes fl ON f.id = fl.film_id
+                LEFT JOIN film_directors fd ON f.id = fd.film_id
+                LEFT JOIN directors d2 ON fd.director_id = d2.id
+                WHERE fd.director_id = ?  -- фильтруем по режиссёру
+                GROUP BY f.id, f.name, f.description, f.release_date, f.duration, r.id, r.mpa_name
+                """;
 
-        switch (sortBy) {
-            case "year":
-                baseQuery += "ORDER BY f.release_date";
-                break;
-            case "likes":
-                baseQuery += "ORDER BY COUNT(DISTINCT fl.user_id) DESC";
-                break;
-            default:
-                throw new IllegalArgumentException("sortBy must be 'year' or 'likes'");
+        if ("year".equals(sortBy)) {
+            sql += " ORDER BY f.release_date";
+        } else if ("likes".equals(sortBy)) {
+            sql += " ORDER BY COUNT(DISTINCT fl.user_id) DESC";
+        } else {
+            throw new IllegalArgumentException("sortBy must be 'year' or 'likes'");
         }
 
-        return findMany(baseQuery, directorId); // findMany из BaseRepository возвращает Collection<Film>
+        Collection<Film> films = findMany(sql, directorId);
+
+        if (films.isEmpty()) {
+            throw new NotFoundException("Director with id " + directorId + " not found");
+        }
+
+        return films;
     }
 
     @Override
