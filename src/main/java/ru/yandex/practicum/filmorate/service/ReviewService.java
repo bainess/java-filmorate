@@ -53,7 +53,7 @@ public class ReviewService {
                 .map(review -> ReviewMapper.updateReviewFields(request, review))
                 .orElseThrow(() -> new NotFoundException("Review not found"));
         updatedReview = dbReviewStorage.updateReview(updatedReview);
-        eventService.createEvent(request.getUserId(), "UPDATE", "REVIEW", request.getReviewId());
+        eventService.createEvent(updatedReview.getUserId(), "UPDATE", "REVIEW", request.getReviewId());
         return ReviewMapper.mapToReviewDto(updatedReview);
     }
 

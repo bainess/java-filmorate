@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.BaseRepository;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Event;
 
 import java.time.Instant;
@@ -31,7 +32,12 @@ public class DbEventStorage extends BaseRepository<Event> {
                 WHERE user_id = ?\s
                 ORDER BY e.ts""";
 
-        return findMany(findUserEventsQuery, userId);
+        Collection<Event> events = findMany(findUserEventsQuery, userId);
+
+        if (events.isEmpty()) {
+            throw new NotFoundException("User with id=" + userId + " not found");
+        }
+        return events;
     }
 
     public Event saveEvent(Event event) {
@@ -55,7 +61,7 @@ public class DbEventStorage extends BaseRepository<Event> {
                 event.getOperation(),
                 event.getEventType(),
                 event.getEntityId());
-        event.setId(id);
+        event.setEventId(id);
         return event;
     }
 }

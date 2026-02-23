@@ -32,7 +32,7 @@ public class Film {
 
     private MpaName mpa;
 
-    private List<Director> directors = new ArrayList<>();   // Добавлено
+    private List<Director> directors = new ArrayList<>();
 
     private List<Genre> genres = new ArrayList<>();
 

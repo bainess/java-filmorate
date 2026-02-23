@@ -65,7 +65,7 @@ public class FilmMapper {
         if (request.hasLikes()) {
             film.setLikes(request.getLikes());
         }
-        if (request.getDirectors() != null) { //todo исправление
+        if (request.getDirectors() != null) {
             film.setDirectors(request.getDirectors());
         }
 
