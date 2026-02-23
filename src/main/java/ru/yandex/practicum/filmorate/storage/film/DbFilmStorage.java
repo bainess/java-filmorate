@@ -146,6 +146,7 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
             }
         }
 
+
         for (Director director : film.getDirectors()) {
             update(INSERT_TO_FILM_DIRECTOR, film.getId(), director.getId());
         }
@@ -167,6 +168,20 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
                 film.getMpa().getId(),
                 film.getId()
         );
+
+        update("""
+                        DELETE FROM films_genre WHERE film_id = ?
+                        """,
+                film.getId());
+
+        if (!film.getGenres().isEmpty() || film.getGenres() != null) {
+            for (Genre genre : film.getGenres()) {
+                insert(INSERT_TO_FILM_GENRE,
+                        film.getId(),
+                        genre.getId()
+                );
+            }
+        }
 
         update(UPDATE_FILM_DIRECTOR, film.getId());
 
