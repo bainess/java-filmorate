@@ -14,53 +14,56 @@ import java.util.Optional;
 @Repository
 public class DbUserStorage extends BaseRepository<User> implements UserStorage {
 
-    private static final String FIND_USER_BY_ID_QUERY = "SELECT \n" +
-            "    users.id, \n" +
-            "    users.name,\n" +
-            "    users.login,\n" +
-            "    users.email,\n" +
-            "    users.birthday,\n" +
-            "    STRING_AGG(CAST(user_friends.friend_id AS VARCHAR), ',') AS friends_ids\n" +
-            "FROM users\n" +
-            "LEFT JOIN user_friends ON users.id = user_friends.user_id\n" +
-            "WHERE users.id = ? \n" +
-            "GROUP BY \n" +
-            "    users.id,\n" +
-            "    users.name,\n" +
-            "    users.login, \n" +
-            "    users.email, \n" +
-            "    users.birthday; ";
-    private static final String FIND_USER_BY_EMAIL = "SELECT \n" +
-            "    users.id, \n" +
-            "    users.name,\n" +
-            "    users.login,\n" +
-            "    users.email,\n" +
-            "    users.birthday,\n" +
-            "    STRING_AGG(CAST(user_friends.friend_id AS VARCHAR), ',') AS friends_ids\n" +
-            "FROM users\n" +
-            "LEFT JOIN user_friends ON users.id = user_friends.user_id\n" +
-            "WHERE users.email = ? \n" +
-            "GROUP BY \n" +
-            "    users.id,\n" +
-            "    users.name,\n" +
-            "    users.login, \n" +
-            "    users.email, \n" +
-            "    users.birthday; ";
-    private static final String FIND_ALL_USERS = "SELECT \n" +
-            "    users.id, \n" +
-            "    users.name,\n" +
-            "    users.login,\n" +
-            "    users.email,\n" +
-            "    users.birthday,\n" +
-            "    STRING_AGG(CAST(user_friends.friend_id AS VARCHAR), ',') AS friends_ids\n" +
-            "FROM users\n" +
-            "LEFT JOIN user_friends ON users.id = user_friends.user_id\n" +
-            "GROUP BY \n" +
-            "    users.id,\n" +
-            "    users.name,\n" +
-            "    users.login, \n" +
-            "    users.email, \n" +
-            "    users.birthday; ";
+    private static final String FIND_USER_BY_ID_QUERY = """
+            SELECT\s
+                users.id,\s
+                users.name,
+                users.login,
+                users.email,
+                users.birthday,
+                STRING_AGG(CAST(user_friends.friend_id AS VARCHAR), ',') AS friends_ids
+            FROM users
+            LEFT JOIN user_friends ON users.id = user_friends.user_id
+            WHERE users.id = ?\s
+            GROUP BY\s
+                users.id,
+                users.name,
+                users.login,\s
+                users.email,\s
+                users.birthday;\s""";
+    private static final String FIND_USER_BY_EMAIL = """
+            SELECT\s
+                users.id,\s
+                users.name,
+                users.login,
+                users.email,
+                users.birthday,
+                STRING_AGG(CAST(user_friends.friend_id AS VARCHAR), ',') AS friends_ids
+            FROM users
+            LEFT JOIN user_friends ON users.id = user_friends.user_id
+            WHERE users.email = ?\s
+            GROUP BY\s
+                users.id,
+                users.name,
+                users.login,\s
+                users.email,\s
+                users.birthday;\s""";
+    private static final String FIND_ALL_USERS = """
+            SELECT\s
+                users.id,\s
+                users.name,
+                users.login,
+                users.email,
+                users.birthday,
+                STRING_AGG(CAST(user_friends.friend_id AS VARCHAR), ',') AS friends_ids
+            FROM users
+            LEFT JOIN user_friends ON users.id = user_friends.user_id
+            GROUP BY\s
+                users.id,
+                users.name,
+                users.login,\s
+                users.email,\s
+                users.birthday;\s""";
     private static final String INSERT_USER = "INSERT INTO users (name, login, email, birthday) " +
             "VALUES (?, ?, ?, ?)";
     private static final String UPDATE_USER = "UPDATE users SET name=?, login=?, email=?, birthday=? WHERE id=?";
