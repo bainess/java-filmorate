@@ -60,7 +60,7 @@ public class DbReviewStorage extends BaseRepository<Review> implements ReviewSto
             "VALUES (?, ?, ?, ?)";
     private static final String INSERT_USEFUL_QUERY = "INSERT INTO review_useful (review_id, user_id, is_like)" +
             "VALUES (?, ?, ?)";
-    private static final String UPDATE_REVIEW_QUERY = "UPDATE reviews SET content = ?, is_positive = ?, user_id = ?, film_id = ?" +
+    private static final String UPDATE_REVIEW_QUERY = "UPDATE reviews SET content = ?, is_positive = ?" +
             "WHERE id = ?";
     private static final String UPDATE_USEFUL_QUERY = "UPDATE review_useful SET is_like = ?" +
             "WHERE review_id = ? AND user_id = ?";
@@ -111,8 +111,6 @@ public class DbReviewStorage extends BaseRepository<Review> implements ReviewSto
         update(UPDATE_REVIEW_QUERY,
                 review.getContent(),
                 review.getIsPositive(),
-                review.getUserId(),
-                review.getFilmId(),
                 review.getId()
         );
         return review;
