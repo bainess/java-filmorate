@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.user.db;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -21,6 +22,7 @@ class DbUserStorageTest {
     private User testUser;
     private User friendUser;
 
+
     @Test
     public void testGetUser() {
         Optional<User> userOptional = userStorage.getUser(1L);
@@ -34,12 +36,20 @@ class DbUserStorageTest {
 
     @Test
     public void testGetUsers() {
-        User testingUser = userStorage.getUser(1L).get();
+        User newUser = new User();
+
+        newUser.setEmail("new@test.com");
+        newUser.setLogin("new_user");
+        newUser.setName("New User");
+        newUser.setBirthday(LocalDate.of(1995, 3, 20));
+        Long id = userStorage.createUser(newUser).getId();
+        User userFromBd = userStorage.getUser(id).get();
+        System.out.println(id);
         Collection<User> users = userStorage.getUsers();
 
         assertThat(users)
                 .isNotEmpty()
-                .anyMatch(user -> user.getId().equals(testingUser.getId()));
+                .anyMatch(user -> user.getId().equals(id));
     }
 
     @Test
@@ -61,17 +71,23 @@ class DbUserStorageTest {
 
     @Test
     public void testUpdateUser() {
-        User testUser = userStorage.getUser(1L).get();
-        testUser.setName("Updated Name");
-        testUser.setEmail("updated@test.com");
+        User newUser = new User();
+        newUser.setEmail("new@test.com");
+        newUser.setLogin("new_user");
+        newUser.setName("New User");
+        newUser.setBirthday(LocalDate.of(1995, 3, 20));
 
-        User updated = userStorage.updateUser(testUser);
+        Long id = userStorage.createUser(newUser).getId();
 
-        assertThat(updated.getName()).isEqualTo(testUser.getName());
-        assertThat(updated.getEmail()).isEqualTo(testUser.getEmail());
+        newUser.setName("Updated Name");
+        newUser.setEmail("updated@test.com");
 
-        User fetched = userStorage.getUser(testUser.getId()).get();
-        assertThat(fetched.getName()).isEqualTo(testUser.getName());
+        userStorage.updateUser(newUser);
+
+        User updated = userStorage.getUser(id).get();
+
+        assertThat(updated.getName()).isEqualTo(newUser.getName());
+        assertThat(updated.getEmail()).isEqualTo(newUser.getEmail());
     }
 
     @Test
