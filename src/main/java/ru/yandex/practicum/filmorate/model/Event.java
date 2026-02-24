@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Event {
-    Long id;
+    Long eventId;
     Long userId;
     String eventType;
     Long timestamp;

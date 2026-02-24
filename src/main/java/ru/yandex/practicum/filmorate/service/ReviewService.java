@@ -8,9 +8,9 @@ import ru.yandex.practicum.filmorate.dto.review.UpdateReviewRequest;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.ReviewMapper;
 import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.storage.film.db.DbFilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.DbFilmStorage;
 import ru.yandex.practicum.filmorate.storage.review.db.DbReviewStorage;
-import ru.yandex.practicum.filmorate.storage.user.db.DbUserStorage;
+import ru.yandex.practicum.filmorate.storage.user.DbUserStorage;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -53,7 +53,7 @@ public class ReviewService {
                 .map(review -> ReviewMapper.updateReviewFields(request, review))
                 .orElseThrow(() -> new NotFoundException("Review not found"));
         updatedReview = dbReviewStorage.updateReview(updatedReview);
-        eventService.createEvent(request.getUserId(), "UPDATE", "REVIEW", request.getReviewId());
+        eventService.createEvent(updatedReview.getUserId(), "UPDATE", "REVIEW", request.getReviewId());
         return ReviewMapper.mapToReviewDto(updatedReview);
     }
 

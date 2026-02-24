@@ -27,7 +27,7 @@ public class GenreController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Genre> getGenre(@PathVariable ("id") int id) {
+    public ResponseEntity<Genre> getGenre(@PathVariable("id") int id) {
         return new ResponseEntity<>(genreService.getGenre(id), HttpStatus.OK);
     }
 }

@@ -7,7 +7,9 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.*;
 
-import ru.yandex.practicum.filmorate.storage.user.db.DbUserStorage;
+import ru.yandex.practicum.filmorate.storage.film.DbFilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.user.DbUserStorage;
 
 import java.time.LocalDate;
 import java.util.List;

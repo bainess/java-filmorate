@@ -28,18 +28,21 @@ public class DbReviewStorage extends BaseRepository<Review> implements ReviewSto
             WHERE r.id = ?
             GROUP BY r.id, r.content, r.is_positive, r.user_id, r.film_id;""";
     private static final String FIND_ALL_QUERY = """
-            SELECT
-                r.id,
-                r.content,
-                r.is_positive,
-                r.user_id,
-                r.film_id,
-                COALESCE(SUM(CASE WHEN ru.is_like = TRUE THEN 1\s
-                                  WHEN ru.is_like = FALSE THEN -1\s
-                                  ELSE 0 END), 0) AS useful
-            FROM reviews r
-            LEFT JOIN review_useful ru ON r.id = ru.review_id
-            GROUP BY r.id, r.content, r.is_positive, r.user_id, r.film_id;""";
+        SELECT
+            r.id,
+            r.content,
+            r.is_positive,
+            r.user_id,
+            r.film_id,
+            COALESCE(SUM(CASE WHEN ru.is_like = TRUE THEN 1
+                              WHEN ru.is_like = FALSE THEN -1
+                              ELSE 0 END), 0) AS useful
+        FROM reviews r
+        LEFT JOIN review_useful ru ON r.id = ru.review_id
+        GROUP BY r.id, r.content, r.is_positive, r.user_id, r.film_id
+        ORDER BY useful DESC;
+        """;
+
     private static final String FIND_REVIEWS_BY_FILM_QUERY = """
             SELECT
                 r.id,
@@ -60,7 +63,7 @@ public class DbReviewStorage extends BaseRepository<Review> implements ReviewSto
             "VALUES (?, ?, ?, ?)";
     private static final String INSERT_USEFUL_QUERY = "INSERT INTO review_useful (review_id, user_id, is_like)" +
             "VALUES (?, ?, ?)";
-    private static final String UPDATE_REVIEW_QUERY = "UPDATE reviews SET content = ?, is_positive = ?, user_id = ?, film_id = ?" +
+    private static final String UPDATE_REVIEW_QUERY = "UPDATE reviews SET content = ?, is_positive = ?" +
             "WHERE id = ?";
     private static final String UPDATE_USEFUL_QUERY = "UPDATE review_useful SET is_like = ?" +
             "WHERE review_id = ? AND user_id = ?";
@@ -111,8 +114,6 @@ public class DbReviewStorage extends BaseRepository<Review> implements ReviewSto
         update(UPDATE_REVIEW_QUERY,
                 review.getContent(),
                 review.getIsPositive(),
-                review.getUserId(),
-                review.getFilmId(),
                 review.getId()
         );
         return review;
