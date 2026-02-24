@@ -53,7 +53,8 @@ public class FilmMapper {
             film.setDuration(request.getDuration());
         }
         if (request.hasGenre()) {
-            film.setGenres(request.getGenres());
+            Set<Genre> uniqueGenres = request.getGenres().stream().collect(Collectors.toSet());
+            film.setGenres(uniqueGenres.stream().toList());
         }
         if (request.hasReleaseDate()) {
             film.setReleaseDate(request.getReleaseDate());
@@ -64,7 +65,7 @@ public class FilmMapper {
         if (request.hasLikes()) {
             film.setLikes(request.getLikes());
         }
-        if (request.hasDirectors()) {
+        if (request.getDirectors() != null) {
             film.setDirectors(request.getDirectors());
         }
 

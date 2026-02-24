@@ -37,6 +37,7 @@ public class ReviewController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ReviewDto> getReview(@Valid @PathVariable Long id) {
+
         return new ResponseEntity<>(reviewService.getReview(id), HttpStatus.OK);
     }
 

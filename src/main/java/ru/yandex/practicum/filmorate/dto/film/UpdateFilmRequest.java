@@ -59,7 +59,7 @@ public class UpdateFilmRequest {
     }
 
     public boolean hasGenre() {
-        return !(genres.isEmpty());
+        return !(genres == null);
     }
 
     public boolean hasLikes() {

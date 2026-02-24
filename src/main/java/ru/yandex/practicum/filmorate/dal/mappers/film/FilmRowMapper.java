@@ -28,7 +28,6 @@ public class FilmRowMapper implements RowMapper<Film> {
         film.setDescription(rs.getString("description"));
         film.setDuration(rs.getInt("duration"));
 
-        // MPA
         if (rs.getString("mpa_name") != null) {
             MpaName mpa = new MpaName();
             mpa.setId(rs.getInt("mpa_id"));
@@ -36,12 +35,10 @@ public class FilmRowMapper implements RowMapper<Film> {
             film.setMpa(mpa);
         }
 
-        // Genres
         if (rs.getString("genres_data") != null) {
             film.setGenres(parseGenres(rs.getString("genres_data")));
         }
 
-        // Likes (STRING_AGG вернул строку "1,2,3")
         if (rs.getString("film_likes") != null && !rs.getString("film_likes").isBlank()) {
             List<Long> likes = Arrays.stream(rs.getString("film_likes").split(","))
                     .filter(s -> !s.isEmpty())
@@ -50,12 +47,10 @@ public class FilmRowMapper implements RowMapper<Film> {
             film.addLikes(likes);
         }
 
-        // Directors
         if (rs.getString("directors_data") != null) {
             film.setDirectors(parseDirectors(rs.getString("directors_data")));
         }
 
-        // Release date
         Timestamp releaseDate = rs.getTimestamp("release_date");
         if (releaseDate != null) {
             film.setReleaseDate(releaseDate.toLocalDateTime().toLocalDate());
