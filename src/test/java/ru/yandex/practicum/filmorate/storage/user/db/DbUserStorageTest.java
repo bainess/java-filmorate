@@ -33,6 +33,7 @@ class DbUserStorageTest {
         user = userStorage.createUser(user);
     }
 
+
     @Test
     public void testGetUser() {
         Optional<User> userOptional = userStorage.getUser(1L);
@@ -72,17 +73,23 @@ class DbUserStorageTest {
 
     @Test
     public void testUpdateUser() {
-        User testUser = userStorage.getUser(1L).get();
-        testUser.setName("Updated Name");
-        testUser.setEmail("updated@test.com");
+        User newUser = new User();
+        newUser.setEmail("new@test.com");
+        newUser.setLogin("new_user");
+        newUser.setName("New User");
+        newUser.setBirthday(LocalDate.of(1995, 3, 20));
 
-        User updated = userStorage.updateUser(testUser);
+        Long id = userStorage.createUser(newUser).getId();
 
-        assertThat(updated.getName()).isEqualTo(testUser.getName());
-        assertThat(updated.getEmail()).isEqualTo(testUser.getEmail());
+        newUser.setName("Updated Name");
+        newUser.setEmail("updated@test.com");
 
-        User fetched = userStorage.getUser(testUser.getId()).get();
-        assertThat(fetched.getName()).isEqualTo(testUser.getName());
+        userStorage.updateUser(newUser);
+
+        User updated = userStorage.getUser(id).get();
+
+        assertThat(updated.getName()).isEqualTo(newUser.getName());
+        assertThat(updated.getEmail()).isEqualTo(newUser.getEmail());
     }
 
     @Test
