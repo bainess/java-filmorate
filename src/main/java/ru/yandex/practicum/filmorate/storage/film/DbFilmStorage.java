@@ -12,11 +12,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MpaName;
 
 import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Primary
 @Repository
@@ -24,45 +20,48 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
     private final MpaStorage mpaStorage;
     private final GenreStorage genreStorage;
     private final DirectorStorage directorStorage;
+    private final JdbcTemplate jdbc;
 
-    private static final String FIND_BY_ID_QUERY = "SELECT\n" +
-            "    f.id, f.name,\n" +
-            "    f.description, \n" +
-            "    f.release_date,\n" +
-            "    f.duration,\n" +
-            "    r.id AS mpa_id,\n" +
-            "    r.mpa_name, \n" +
-            "    STRING_AGG(DISTINCT g.id || ':' || g.name, ',') AS genres_data, \n" +
-            "    STRING_AGG(DISTINCT CAST(fl.user_id AS VARCHAR), ',') AS film_likes, \n" +
-            "    STRING_AGG(DISTINCT d.id || ':' || d.director_name, ',') AS directors_data \n" +
-            "FROM films f \n" +
-            "LEFT JOIN ratings r ON f.mpa_id = r.id \n" +
-            "LEFT JOIN films_genre fg ON f.id = fg.film_id \n" +
-            "LEFT JOIN genres g ON fg.genre_id = g.id\n" +
-            "LEFT JOIN film_likes fl ON f.id = fl.film_id \n" +
-            "LEFT JOIN film_directors fd ON f.id = fd.film_id \n" +
-            "LEFT JOIN directors d ON fd.director_id = d.id \n" +
-            "WHERE f.id = ? \n" +
-            "GROUP BY f.id, f.name, f.description, f.release_date, f.duration, r.id, r.mpa_name;";
+    private static final String FIND_BY_ID_QUERY = """
+            SELECT
+                f.id, f.name,
+                f.description,\s
+                f.release_date,
+                f.duration,
+                r.id AS mpa_id,
+                r.mpa_name,\s
+                STRING_AGG(DISTINCT g.id || ':' || g.name, ',') AS genres_data,\s
+                STRING_AGG(DISTINCT CAST(fl.user_id AS VARCHAR), ',') AS film_likes,\s
+                STRING_AGG(DISTINCT d.id || ':' || d.director_name, ',') AS directors_data\s
+            FROM films f\s
+            LEFT JOIN ratings r ON f.mpa_id = r.id\s
+            LEFT JOIN films_genre fg ON f.id = fg.film_id\s
+            LEFT JOIN genres g ON fg.genre_id = g.id
+            LEFT JOIN film_likes fl ON f.id = fl.film_id\s
+            LEFT JOIN film_directors fd ON f.id = fd.film_id\s
+            LEFT JOIN directors d ON fd.director_id = d.id\s
+            WHERE f.id = ?\s
+            GROUP BY f.id, f.name, f.description, f.release_date, f.duration, r.id, r.mpa_name;""";
 
-    private static final String FIND_ALL_QUERY = "SELECT\n" +
-            "    f.id, f.name,\n" +
-            "    f.description, \n" +
-            "    f.release_date,\n" +
-            "    f.duration,\n" +
-            "    r.id AS mpa_id,\n" +
-            "    r.mpa_name, \n" +
-            "    STRING_AGG(DISTINCT g.id || ':' || g.name, ',') AS genres_data, \n" +
-            "    STRING_AGG(DISTINCT CAST(fl.user_id AS VARCHAR), ',') AS film_likes, \n" +
-            "    STRING_AGG(DISTINCT d.id || ':' || d.director_name, ',') AS directors_data \n" +
-            "FROM films f \n" +
-            "LEFT JOIN ratings r ON f.mpa_id = r.id \n" +
-            "LEFT JOIN films_genre fg ON f.id = fg.film_id \n" +
-            "LEFT JOIN genres g ON fg.genre_id = g.id\n" +
-            "LEFT JOIN film_likes fl ON f.id = fl.film_id \n" +
-            "LEFT JOIN film_directors fd ON f.id = fd.film_id \n" +
-            "LEFT JOIN directors d ON fd.director_id = d.id \n" +
-            "GROUP BY f.id, f.name, f.description, f.release_date, f.duration, r.id, r.mpa_name;";
+    private static final String FIND_ALL_QUERY = """
+            SELECT
+                f.id, f.name,
+                f.description,\s
+                f.release_date,
+                f.duration,
+                r.id AS mpa_id,
+                r.mpa_name,\s
+                STRING_AGG(DISTINCT g.id || ':' || g.name, ',') AS genres_data,\s
+                STRING_AGG(DISTINCT CAST(fl.user_id AS VARCHAR), ',') AS film_likes,\s
+                STRING_AGG(DISTINCT d.id || ':' || d.director_name, ',') AS directors_data\s
+            FROM films f\s
+            LEFT JOIN ratings r ON f.mpa_id = r.id\s
+            LEFT JOIN films_genre fg ON f.id = fg.film_id\s
+            LEFT JOIN genres g ON fg.genre_id = g.id
+            LEFT JOIN film_likes fl ON f.id = fl.film_id\s
+            LEFT JOIN film_directors fd ON f.id = fd.film_id\s
+            LEFT JOIN directors d ON fd.director_id = d.id\s
+            GROUP BY f.id, f.name, f.description, f.release_date, f.duration, r.id, r.mpa_name;""";
 
     private static final String INSERT_QUERY = "INSERT INTO films (name, description, release_date, duration, mpa_id)" +
             "VALUES (?, ?, ?, ?, ?)";
@@ -70,43 +69,54 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
     private static final String INSERT_TO_FILM_GENRE = "INSERT INTO films_genre(film_id, genre_id) VALUES (?, ?)";
     private static final String INSERT_TO_FILM_DIRECTOR = "INSERT INTO film_directors(film_id, director_id) VALUES (?, ?)";
     private static final String UPDATE_FILM = "UPDATE films SET name=?, description=?, release_date=?, duration=?, mpa_id =? WHERE id=?";
-    private static final String UPDATE_FILM_GENRE = "UPDATE films_genre SET genre_id=? WHERE film_id=?";
-    private static final String UPDATE_FILM_DIRECTOR = "DELETE FROM film_directors WHERE film_id=?";
-    private static final String INSERT_LIKES //Удачный вариант, починил search
+    private static final String INSERT_LIKES
             = "MERGE INTO film_likes (film_id, user_id) KEY (film_id, user_id) VALUES (?, ?)";
     private static final String REMOVE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? and user_id = ?";
     private static final String FIND_RECOMMENDATIONS_QUERY = """
-             SELECT\s
-                 f.*,\s
-                 r.mpa_name,\s
+             SELECT
+                 f.id,
+                 f.name,
+                 f.description,
+                 f.release_date,
+                 f.duration,
                  r.id AS mpa_id,
+                 r.mpa_name,
                  GROUP_CONCAT(DISTINCT g.id || ':' || g.name ORDER BY g.id SEPARATOR ',') AS genres_data,
-                 ARRAY_AGG(DISTINCT fl_all.user_id) FILTER (WHERE fl_all.user_id IS NOT NULL) AS film_likes
+                 GROUP_CONCAT(DISTINCT fl_all.user_id ORDER BY fl_all.user_id SEPARATOR ',') AS film_likes,
+                 GROUP_CONCAT(DISTINCT d.id || ':' || d.director_name ORDER BY d.id SEPARATOR ',') AS directors_data
              FROM films f
              LEFT JOIN ratings r ON f.mpa_id = r.id
              LEFT JOIN films_genre fg ON f.id = fg.film_id
              LEFT JOIN genres g ON fg.genre_id = g.id
              LEFT JOIN film_likes fl_all ON f.id = fl_all.film_id
+             LEFT JOIN film_directors fd ON f.id = fd.film_id
+             LEFT JOIN directors d ON fd.director_id = d.id
              WHERE f.id IN (
-                 SELECT fl_other.film_id
-                 FROM film_likes fl_other
-                 WHERE fl_other.user_id = (
+                 SELECT DISTINCT fl.film_id
+                 FROM film_likes fl
+                 WHERE fl.user_id IN (
                      SELECT fl2.user_id
                      FROM film_likes fl1
                      JOIN film_likes fl2 ON fl1.film_id = fl2.film_id
-                     WHERE fl1.user_id = ? AND fl2.user_id != ?
+                     WHERE fl1.user_id = ?
+                         AND fl2.user_id != ?
                      GROUP BY fl2.user_id
-                     ORDER BY COUNT(fl1.film_id) DESC
-                     LIMIT 1
+                     HAVING COUNT(DISTINCT fl1.film_id) > 0
+                     ORDER BY COUNT(DISTINCT fl1.film_id) DESC
                  )
-                 AND fl_other.film_id NOT IN (SELECT film_id FROM film_likes WHERE user_id = ?)
+                 AND fl.film_id NOT IN (
+                     SELECT film_id FROM film_likes WHERE user_id = ?
+                 )
              )
-             GROUP BY f.id, r.mpa_name, r.id
+             GROUP BY f.id, f.name, f.description, f.release_date, f.duration, r.id, r.mpa_name
             \s""";
     private static final String DELETE_FILM_QUERY = "DELETE FROM films WHERE id = ?";
 
-    public DbFilmStorage(JdbcTemplate jdbc, RowMapper<Film> filmMapper, MpaStorage mpaStorage, GenreStorage genreStorage, DirectorStorage directorStorage) {
+    public DbFilmStorage(JdbcTemplate jdbc, RowMapper<Film> filmMapper,
+                         MpaStorage mpaStorage, GenreStorage genreStorage,
+                         DirectorStorage directorStorage) {
         super(jdbc, filmMapper);
+        this.jdbc = jdbc;
         this.mpaStorage = mpaStorage;
         this.genreStorage = genreStorage;
         this.directorStorage = directorStorage;
@@ -121,12 +131,6 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
             throw new NotFoundException("Invalid rating");
         }
 
-        for (Genre genre : film.getGenres()) {
-            if (!genreStorage.getGenres().stream().map(Genre::getId).toList().contains(genre.getId())) {
-                throw new NotFoundException("Invalid genre");
-            }
-        }
-
         long id = insert(
                 INSERT_QUERY,
                 film.getName(),
@@ -135,21 +139,30 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
                 film.getDuration(),
                 film.getMpa().getId()
         );
-
         film.setId(id);
 
-        if (!film.getGenres().isEmpty()) {
+        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
+            List<Object[]> batchArgs = new ArrayList<>();
             for (Genre genre : film.getGenres()) {
-                insert(INSERT_TO_FILM_GENRE,
-                        film.getId(),
-                        genre.getId()
-                );
+                if (genre != null) {
+                    batchArgs.add(new Object[]{film.getId(), genre.getId()});
+                }
+            }
+            if (!batchArgs.isEmpty()) {
+                jdbc.batchUpdate(INSERT_TO_FILM_GENRE, batchArgs);
             }
         }
 
-
-        for (Director director : film.getDirectors()) {
-            update(INSERT_TO_FILM_DIRECTOR, film.getId(), director.getId());
+        if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
+            List<Object[]> batchArgs = new ArrayList<>();
+            for (Director director : film.getDirectors()) {
+                if (director != null) {
+                    batchArgs.add(new Object[]{film.getId(), director.getId()});
+                }
+            }
+            if (!batchArgs.isEmpty()) {
+                jdbc.batchUpdate(INSERT_TO_FILM_DIRECTOR, batchArgs);
+            }
         }
 
         return film;
@@ -160,36 +173,46 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
     }
 
     public Film updateFilm(Film film) {
+        Optional<Film> existingFilm = findFilm(film.getId());
+        if (existingFilm.isEmpty()) {
+            throw new NotFoundException("Film with id " + film.getId() + " not found");
+        }
+
         update(
                 UPDATE_FILM,
                 film.getName(),
                 film.getDescription(),
-                Timestamp.valueOf(film.getReleaseDate().atStartOfDay()),
+                film.getReleaseDate() != null ? Timestamp.valueOf(film.getReleaseDate().atStartOfDay()) : null,
                 film.getDuration(),
-                film.getMpa().getId(),
+                film.getMpa() != null ? film.getMpa().getId() : null,
                 film.getId()
         );
 
-        update("""
-                        DELETE FROM films_genre WHERE film_id = ?
-                        """,
-                film.getId());
+        update("DELETE FROM films_genre WHERE film_id = ?", film.getId());
 
-        if (!film.getGenres().isEmpty() || film.getGenres() != null) {
+        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
+            List<Object[]> batchArgs = new ArrayList<>();
             for (Genre genre : film.getGenres()) {
-                insert(INSERT_TO_FILM_GENRE,
-                        film.getId(),
-                        genre.getId()
-                );
+                if (genre != null) {
+                    batchArgs.add(new Object[]{film.getId(), genre.getId()});
+                }
+            }
+            if (!batchArgs.isEmpty()) {
+                jdbc.batchUpdate(INSERT_TO_FILM_GENRE, batchArgs);
             }
         }
 
-        update(UPDATE_FILM_DIRECTOR, film.getId());
+        update("DELETE FROM film_directors WHERE film_id = ?", film.getId());
 
-        List<Director> directors = film.getDirectors();
-        if (directors != null && !directors.isEmpty()) {
+        if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
+            List<Object[]> batchArgs = new ArrayList<>();
             for (Director director : film.getDirectors()) {
-                update(INSERT_TO_FILM_DIRECTOR, film.getId(), director.getId());
+                if (director != null) {
+                    batchArgs.add(new Object[]{film.getId(), director.getId()});
+                }
+            }
+            if (!batchArgs.isEmpty()) {
+                jdbc.batchUpdate(INSERT_TO_FILM_DIRECTOR, batchArgs);
             }
         }
 
@@ -203,8 +226,6 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
     public void removeLike(Long filmId, Long userId) {
         update(REMOVE_LIKE_QUERY, filmId, userId);
     }
-
-    //Получение списка фильмов конкретного режиссёра с сортировкой.
 
     public Collection<Film> getFilmsByDirector(long directorId, String sortBy) {
         String sql = """
@@ -221,7 +242,7 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
                 LEFT JOIN film_likes fl ON f.id = fl.film_id
                 LEFT JOIN film_directors fd ON f.id = fd.film_id
                 LEFT JOIN directors d2 ON fd.director_id = d2.id
-                WHERE fd.director_id = ?  -- фильтруем по режиссёру
+                WHERE fd.director_id = ?
                 GROUP BY f.id, f.name, f.description, f.release_date, f.duration, r.id, r.mpa_name
                 """;
 
@@ -244,7 +265,24 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
 
     @Override
     public Collection<Film> getRecommendations(Long userId) {
-        return findMany(FIND_RECOMMENDATIONS_QUERY, userId, userId, userId);
+        try {
+            String checkUserQuery = "SELECT COUNT(*) FROM users WHERE id = ?";
+            Integer userCount = jdbc.queryForObject(checkUserQuery, Integer.class, userId);
+            if (userCount == null || userCount == 0) {
+                return Collections.emptyList();
+            }
+
+            String checkLikesQuery = "SELECT COUNT(*) FROM film_likes WHERE user_id = ?";
+            Integer likeCount = jdbc.queryForObject(checkLikesQuery, Integer.class, userId);
+
+            if (likeCount == null || likeCount == 0) {
+                return Collections.emptyList();
+            }
+
+            return findMany(FIND_RECOMMENDATIONS_QUERY, userId, userId, userId);
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
     }
 
     @Override
