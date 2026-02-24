@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -20,21 +21,12 @@ class DbUserStorageTest {
 
     private User testUser;
     private User friendUser;
-    User user;
 
-    @BeforeEach
-    void setUp() {
-        user = new User();
-        user.setName("User Name");
-        user.setEmail("user@email.com");
-        user.setLogin("user_login");
-        user.setBirthday(LocalDate.of(1990, 12, 31));
-        user = userStorage.createUser(user);
-    }
 
     @Test
     public void testGetUser() {
         Optional<User> userOptional = userStorage.getUser(1L);
+
         assertThat(userOptional)
                 .isPresent()
                 .hasValueSatisfying(user ->
@@ -44,12 +36,20 @@ class DbUserStorageTest {
 
     @Test
     public void testGetUsers() {
-        User testUser = userStorage.getUser(user.getId()).get();
+        User newUser = new User();
 
-        assertThat(testUser.getName()).isEqualTo(user.getName());
-        assertThat(testUser.getEmail()).isEqualTo(user.getEmail());
-        assertThat(testUser.getLogin()).isEqualTo(user.getLogin());
-        assertThat(testUser.getBirthday()).isEqualTo(user.getBirthday());
+        newUser.setEmail("new@test.com");
+        newUser.setLogin("new_user");
+        newUser.setName("New User");
+        newUser.setBirthday(LocalDate.of(1995, 3, 20));
+        Long id = userStorage.createUser(newUser).getId();
+        User userFromBd = userStorage.getUser(id).get();
+        System.out.println(id);
+        Collection<User> users = userStorage.getUsers();
+
+        assertThat(users)
+                .isNotEmpty()
+                .anyMatch(user -> user.getId().equals(id));
     }
 
     @Test
@@ -71,17 +71,23 @@ class DbUserStorageTest {
 
     @Test
     public void testUpdateUser() {
-        User testUser = userStorage.getUser(1L).get();
-        testUser.setName("Updated Name");
-        testUser.setEmail("updated@test.com");
+        User newUser = new User();
+        newUser.setEmail("new@test.com");
+        newUser.setLogin("new_user");
+        newUser.setName("New User");
+        newUser.setBirthday(LocalDate.of(1995, 3, 20));
 
-        User updated = userStorage.updateUser(testUser);
+        Long id = userStorage.createUser(newUser).getId();
 
-        assertThat(updated.getName()).isEqualTo(testUser.getName());
-        assertThat(updated.getEmail()).isEqualTo(testUser.getEmail());
+        newUser.setName("Updated Name");
+        newUser.setEmail("updated@test.com");
 
-        User fetched = userStorage.getUser(testUser.getId()).get();
-        assertThat(fetched.getName()).isEqualTo(testUser.getName());
+        userStorage.updateUser(newUser);
+
+        User updated = userStorage.getUser(id).get();
+
+        assertThat(updated.getName()).isEqualTo(newUser.getName());
+        assertThat(updated.getEmail()).isEqualTo(newUser.getEmail());
     }
 
     @Test
