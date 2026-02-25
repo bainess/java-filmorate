@@ -73,6 +73,7 @@ public class DbReviewStorage extends BaseRepository<Review> implements ReviewSto
             DELETE FROM review_useful
             WHERE review_id = ? AND user_id = ? AND is_like = false
             """;
+    private static final String CHECK_LIKE_DISLIKE_QUERY = "SELECT is_like FROM review_useful WHERE review_id = ? AND user_id = ?";
 
     public DbReviewStorage(JdbcTemplate jdbc, RowMapper<Review> mapper) {
         super(jdbc, mapper);
@@ -161,9 +162,8 @@ public class DbReviewStorage extends BaseRepository<Review> implements ReviewSto
     }
 
     public Optional<Boolean> checkLikeOrDislike(Long reviewId, Long userId) {
-        String sql = "SELECT is_like FROM review_useful WHERE review_id = ? AND user_id = ?";
         try {
-            return Optional.ofNullable(jdbc.queryForObject(sql, Boolean.class, reviewId, userId));
+            return Optional.ofNullable(jdbc.queryForObject(CHECK_LIKE_DISLIKE_QUERY, Boolean.class, reviewId, userId));
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }

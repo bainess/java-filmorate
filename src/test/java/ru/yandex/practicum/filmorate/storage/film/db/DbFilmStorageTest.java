@@ -82,7 +82,7 @@ class DbFilmStorageTest {
     void testGetFilms() {
         filmStorage.createFilm(testFilm);
 
-        var films = filmStorage.getFilms();
+        var films = filmStorage.getFilms(null, null);
 
         assertThat(films).isNotEmpty();
     }

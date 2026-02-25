@@ -9,7 +9,7 @@ public interface FilmStorage {
 
     Optional<Film> findFilm(Long id);
 
-    Collection<Film> getFilms();
+    Collection<Film> getFilms(Integer genre, Integer year);
 
     Film updateFilm(Film film);
 

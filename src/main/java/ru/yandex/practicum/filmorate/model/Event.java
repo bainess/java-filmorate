@@ -8,10 +8,10 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Event {
-    Long eventId;
-    Long userId;
-    String eventType;
-    Long timestamp;
-    Long entityId;
-    String operation;
+    private Long eventId;
+    private Long userId;
+    private String eventType;
+    private Long timestamp;
+    private Long entityId;
+    private String operation;
 }

@@ -30,8 +30,8 @@ public class FilmService {
         this.eventService = eventService;
     }
 
-    public Collection<FilmDto> getFilms() {
-        return filmStorage.getFilms().stream()
+    public Collection<FilmDto> getFilms(Integer genre, Integer year) {
+        return filmStorage.getFilms(genre, year).stream()
                 .map(FilmMapper::mapToFilmDto)
                 .collect(Collectors.toList());
     }
@@ -79,11 +79,7 @@ public class FilmService {
     }
 
     public Collection<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
-        List<Film> films = filmStorage.getFilms().stream()
-                .filter(film -> genreId == null || film.getGenres().stream().anyMatch(genre -> genre.getId() == genreId))
-                .filter(film -> year == null || film.getReleaseDate().getYear() == year)
-                .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
-                .toList();
+        Collection<Film> films = filmStorage.getFilms(genreId, year);
 
         if (count != null) {
             films = films.stream().limit(count).toList();

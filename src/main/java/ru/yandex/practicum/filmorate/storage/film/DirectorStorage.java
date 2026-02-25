@@ -50,6 +50,6 @@ public class DirectorStorage extends BaseRepository<Director> {
         if (!getDirectorById(id).isPresent()) {
             throw new NotFoundException("Director not found");
         }
-        update(DELETE_DIRECTOR, id);
+        delete(DELETE_DIRECTOR, id);
     }
 }

@@ -12,13 +12,7 @@ import java.util.Collection;
 
 @Repository
 public class DbEventStorage extends BaseRepository<Event> {
-
-    public DbEventStorage(JdbcTemplate jdbc, RowMapper<Event> mapper) {
-        super(jdbc, mapper);
-    }
-
-    public Collection<Event> getEvents(Long userId) {
-        String findUserEventsQuery = """
+    private static final String FIND_USER_EVENT_QUERY = """
                 SELECT\s
                     e.id,\s
                     e.ts,\s
@@ -32,7 +26,29 @@ public class DbEventStorage extends BaseRepository<Event> {
                 WHERE user_id = ?\s
                 ORDER BY e.ts""";
 
-        Collection<Event> events = findMany(findUserEventsQuery, userId);
+    private static final String SAVE_EVENT_QUERY = """
+        INSERT INTO EVENTS\s
+            (ts,\s
+            user_id,\s
+            operation_id,\s
+            event_type_id, \s
+            entity_id)\s
+        VALUES \s
+             (CAST (? AS TIMESTAMP),\s
+             ?,
+             (SELECT id FROM event_operations WHERE operation_name = ?),\s
+             (SELECT id FROM event_types WHERE event_name = ?),
+             ?);
+             \s""";
+
+    public DbEventStorage(JdbcTemplate jdbc, RowMapper<Event> mapper) {
+        super(jdbc, mapper);
+    }
+
+    public Collection<Event> getEvents(Long userId) {
+
+
+        Collection<Event> events = findMany(FIND_USER_EVENT_QUERY, userId);
 
         if (events.isEmpty()) {
             throw new NotFoundException("User with id=" + userId + " not found");
@@ -41,21 +57,8 @@ public class DbEventStorage extends BaseRepository<Event> {
     }
 
     public Event saveEvent(Event event) {
-        String saveEventQuery = """
-                 INSERT INTO EVENTS\s
-                     (ts,\s
-                     user_id,\s
-                     operation_id,\s
-                     event_type_id, \s
-                     entity_id)\s
-                 VALUES \s
-                     (CAST (? AS TIMESTAMP),\s
-                     ?,
-                     (SELECT id FROM event_operations WHERE operation_name = ?),\s
-                     (SELECT id FROM event_types WHERE event_name = ?),
-                     ?);
-                \s""";
-        Long id = insert(saveEventQuery,
+
+        Long id = insert(SAVE_EVENT_QUERY,
                 Instant.now(),
                 event.getUserId(),
                 event.getOperation(),

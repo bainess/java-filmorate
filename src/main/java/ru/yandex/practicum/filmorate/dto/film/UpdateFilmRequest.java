@@ -59,11 +59,11 @@ public class UpdateFilmRequest {
     }
 
     public boolean hasGenre() {
-        return !(genres == null);
+        return (genres != null);
     }
 
     public boolean hasLikes() {
-        return !(likes == null);
+        return (likes != null);
     }
 
     public boolean hasDirectors() {

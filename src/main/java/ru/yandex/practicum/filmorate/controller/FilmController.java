@@ -29,9 +29,10 @@ public class FilmController {
     }
 
     @GetMapping
-    public ResponseEntity<Collection<FilmDto>> getFilms() {
-        log.info("GET/films - Number of films: {}", filmService.getFilms().size());
-        return new ResponseEntity<>(filmService.getFilms(), HttpStatus.OK);
+    public ResponseEntity<Collection<FilmDto>> getFilms(@RequestParam(required = false) Integer genre,
+                                                        @RequestParam(required = false) Integer year) {
+        log.info("GET/films - Number of films: {}", filmService.getFilms(genre, year).size());
+        return new ResponseEntity<>(filmService.getFilms(genre, year), HttpStatus.OK);
     }
 
     @PostMapping

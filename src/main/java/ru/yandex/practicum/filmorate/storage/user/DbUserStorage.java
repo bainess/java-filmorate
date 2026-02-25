@@ -68,6 +68,14 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
     private static final String FIND_USER_FRIENDS = "SELECT * FROM user_friends WHERE user_id = ?";
     private static final String REMOVE_FROM_FRIENDS_QUERY = "DELETE FROM user_friends WHERE user_id = ? AND friend_id = ?";
     private static final String DELETE_USER_QUERY = "DELETE FROM users WHERE id = ?";
+    private static final String FIND_FRIENDS_QUERY = """
+                SELECT *
+                FROM users
+                LEFT JOIN user_friends AS uf ON users.id = uf.friend_id
+                WHERE uf.user_id = ?
+                ORDER BY uf.friend_id;
+                """;
+
     private final JdbcTemplate jdbcTemplate;
 
     public DbUserStorage(JdbcTemplate jdbc, RowMapper<User> mapper, JdbcTemplate jdbcTemplate) {
@@ -85,14 +93,7 @@ public class DbUserStorage extends BaseRepository<User> implements UserStorage {
     }
 
     public Collection<User> getFriends(Long userId) {
-        String findFriendsQuery = """
-                SELECT *
-                FROM users
-                LEFT JOIN user_friends AS uf ON users.id = uf.friend_id
-                WHERE uf.user_id = ?
-                ORDER BY uf.friend_id;
-                """;
-        return findMany(findFriendsQuery, userId);
+        return findMany(FIND_FRIENDS_QUERY, userId);
     }
 
     @Override
