@@ -1,37 +1,10 @@
-# java-filmorate
-<img width="957" height="557" alt="image" src="https://github.com/user-attachments/assets/42b2a326-14c3-4029-9a34-64df574d5765" />
-
-
-*Main queries*
-getUsers
-SELECT *
-FROM user as u
-LEFT JOIN user_friends AS uf ON u.user_id = uf.user_id
-
-**getUser**
-SELECT *
-FROM user AS u
-LEFT JOIN user_friends AS uf ON u.user_id = uf.user_id
-WHERE user LIKE 'user_id'
-
-**getUserFriends**
-SELECT friend_id
-FROM user AS u
-LEFT JOIN user_friends AS uf ON u.user_id = uf.user_id
-WHERE user LIKE 'user_id'
-
-**getCommonFriends**
-SELECT COUNT(friend_id)
-FROM (
-SELECT friend_id
-FROM user AS u
-WHERE friend_id IN (SELECT: friend_id
-LEFT JOIN user_friends AS uf ON u.user_id = uf.user_id
-WHERE user LIKE 'user1_id')
-
-
-**getFilms**
-**getFilm**
-**getPopularFilms**
-**getFilmsByRating**
-**getFilmsByGenre**
+В ходе выполнения командного проекта была добавлена следующая функциональность:
+1. Отзывы на фильмы. Отзывы имеют характеристику полезности и типа (негатив/позитив). Пользователи оценивают полезность отзыва, что определяет его рейтинг.
+2. Поиск общих с другом фильмов с сортировкой по их популярности.
+3. Простая система получения рекомендаций для фильмов.
+4. Лента событий для пользователя, в которой отображаются: добавление/удаление друзей, лайки и отзывы которые оставили друзья пользователя.
+5. Удаление фильма или пользователя по идентификатору
+6. К информации о фильмах появилась информация о режиссёрах. Появилась возможность получения всех фильмов режиссёра отсортированных по количеству лайков, или по годам.
+7. Простая поисковая система. Поиск работает по подстроке по названию фильмов и/или режиссёру(ам)
+8. Возможность вывода топ-N фильмов по количеству лайков с фильтрацией по жанрам и по годам.
+9. После объединения всех веток был проведён рефакторинг.
