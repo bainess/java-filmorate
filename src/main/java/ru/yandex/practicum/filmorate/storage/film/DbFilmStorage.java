@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -14,6 +15,7 @@ import ru.yandex.practicum.filmorate.model.MpaName;
 import java.sql.Timestamp;
 import java.util.*;
 
+@Slf4j
 @Primary
 @Repository
 public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
@@ -188,7 +190,7 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
                 film.getId()
         );
 
-        update("DELETE FROM films_genre WHERE film_id = ?", film.getId());
+        delete("DELETE FROM films_genre WHERE film_id = ?", film.getId());
 
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             List<Object[]> batchArgs = new ArrayList<>();
@@ -202,7 +204,7 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
             }
         }
 
-        update("DELETE FROM film_directors WHERE film_id = ?", film.getId());
+        delete("DELETE FROM film_directors WHERE film_id = ?", film.getId());
 
         if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
             List<Object[]> batchArgs = new ArrayList<>();
@@ -281,7 +283,8 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
 
             return findMany(FIND_RECOMMENDATIONS_QUERY, userId, userId, userId);
         } catch (Exception e) {
-            return Collections.emptyList();
+            log.error("Error getting recommendations for user {}: {}", userId, e.getMessage(), e);
+            throw new RuntimeException("Failed to get recommendations for user " + userId, e);
         }
     }
 
