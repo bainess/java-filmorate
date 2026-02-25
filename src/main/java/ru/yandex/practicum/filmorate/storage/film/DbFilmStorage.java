@@ -65,7 +65,6 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
             LEFT JOIN film_likes fl ON f.id = fl.film_id
             LEFT JOIN film_directors fd ON f.id = fd.film_id
             LEFT JOIN directors d ON fd.director_id = d.id
-            
             WHERE
                 (? IS NULL OR f.id IN (
                     SELECT film_id
@@ -74,13 +73,10 @@ public class DbFilmStorage extends BaseRepository<Film> implements FilmStorage {
                 ))
             AND
                 (? IS NULL OR EXTRACT(YEAR FROM f.release_date) = ?)
-            
             GROUP BY
                 f.id, f.name, f.description, f.release_date,
                 f.duration, r.id, r.mpa_name
-            
             ORDER BY likes_count DESC;""";
-
     private static final String INSERT_QUERY = "INSERT INTO films (name, description, release_date, duration, mpa_id)" +
             "VALUES (?, ?, ?, ?, ?)";
 
