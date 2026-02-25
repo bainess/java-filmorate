@@ -37,16 +37,9 @@ public class User {
         return name;
     }
 
-//    public Long addFriendToList(Long user) {
-//        UserFriend  uf = new UserFriend();
-//        uf.setId(user);
-//        friends.add(uf);
-//        return user;
-//    }
-
     public void removeFriend(Long userId) {
-       User uf = friends.stream().filter(friend -> Objects.equals(friend.getId(), userId)).findFirst().get();
-       friends.remove(uf);
+        User uf = friends.stream().filter(friend -> Objects.equals(friend.getId(), userId)).findFirst().get();
+        friends.remove(uf);
     }
 }
 
