@@ -22,24 +22,24 @@ public class User {
     @NotBlank(message = "Should not contain spaces")
     private String login;
 
+    @Setter
     private String name;
 
     @Past(message = "Date of birth should be in the past")
     private LocalDate birthday;
 
-    private Set<UserFriend> friends = new HashSet<>();
+    private Set<User> friends = new HashSet<>();
 
-    public Long addFriendToList(Long user) {
-        UserFriend  uf = new UserFriend();
-        uf.setId(user);
-        friends.add(uf);
-        return user;
+    public String getName() {
+        if (name == null || name.isBlank()) {
+            name = login;
+        }
+        return name;
     }
 
     public void removeFriend(Long userId) {
-       UserFriend uf = friends.stream().filter(friend -> Objects.equals(friend.getId(), userId)).findFirst().get();
-       friends.remove(uf);
+        User uf = friends.stream().filter(friend -> Objects.equals(friend.getId(), userId)).findFirst().get();
+        friends.remove(uf);
     }
-
 }
 

@@ -20,7 +20,7 @@ import java.util.Collection;
 @RestController
 @Validated
 @RequestMapping("/films")
-public class    FilmController {
+public class FilmController {
     private final FilmService filmService;
 
     @Autowired
@@ -29,9 +29,10 @@ public class    FilmController {
     }
 
     @GetMapping
-    public ResponseEntity<Collection<FilmDto>> getFilms() {
-        log.info("GET/films - Number of films: {}", filmService.getFilms().size());
-            return new ResponseEntity<>(filmService.getFilms(), HttpStatus.OK);
+    public ResponseEntity<Collection<FilmDto>> getFilms(@RequestParam(required = false) Integer genre,
+                                                        @RequestParam(required = false) Integer year) {
+        log.info("GET/films - Number of films: {}", filmService.getFilms(genre, year).size());
+        return new ResponseEntity<>(filmService.getFilms(genre, year), HttpStatus.OK);
     }
 
     @PostMapping
@@ -57,8 +58,10 @@ public class    FilmController {
     }
 
     @GetMapping("/popular")
-    public ResponseEntity<Collection<Film>> getPopularFilms(@RequestParam(defaultValue = "10") @Positive int count) {
-        return new ResponseEntity<>(filmService.getPopularFilms(count), HttpStatus.OK);
+    public ResponseEntity<Collection<Film>> getPopularFilms(@RequestParam(required = false) @Positive Integer count,
+                                                            @RequestParam(required = false) Integer genreId,
+                                                            @RequestParam(required = false) Integer year) {
+        return new ResponseEntity<>(filmService.getPopularFilms(count, genreId, year), HttpStatus.OK);
     }
 
     @PutMapping("/{filmId}/like/{userId}")
@@ -73,4 +76,34 @@ public class    FilmController {
         filmService.removeLike(filmId, userId);
     }
 
+    // GET /films/director/{directorId}?sortBy=[year,likes] - список фильмов режиссёра с сортировкой
+    @GetMapping("/director/{directorId}")
+    public ResponseEntity<Collection<FilmDto>> getFilmsByDirector(
+            @PathVariable("directorId") long directorId,
+            @RequestParam(name = "sortBy", required = false, defaultValue = "year") String sortBy) {
+        return new ResponseEntity<>(filmService.getFilmsByDirector(directorId, sortBy), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{filmId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteFilm(@PathVariable Long filmId) {
+        log.info("DELETE /films/{} - Deleting film", filmId);
+        filmService.deleteFilm(filmId);
+    }
+
+    @GetMapping("/common")
+    public ResponseEntity<Collection<FilmDto>> getCommonFilms(
+            @RequestParam Long userId,
+            @RequestParam Long friendId) {
+        return new ResponseEntity<>(filmService.getCommonFilms(userId, friendId), HttpStatus.OK);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Collection<FilmDto>> searchFilms(
+            @RequestParam String query,
+            @RequestParam String by) {
+
+        log.info("GET /films/search?query={}&by={}", query, by);
+        return new ResponseEntity<>(filmService.searchFilms(query, by), HttpStatus.OK);
+    }
 }

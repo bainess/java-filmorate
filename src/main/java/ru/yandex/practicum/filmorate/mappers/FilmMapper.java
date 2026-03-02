@@ -24,6 +24,7 @@ public class FilmMapper {
         film.setReleaseDate(request.getReleaseDate());
         film.setMpa(request.getMpa());
         film.setGenres(new ArrayList<>(uniqueGenres).stream().sorted((genre1, genre2) -> genre1.getId() - genre2.getId()).toList());
+        film.setDirectors(request.getDirectors());
         return film;
     }
 
@@ -37,7 +38,7 @@ public class FilmMapper {
         dto.setGenres(film.getGenres());
         dto.setMpa(film.getMpa());
         dto.setLikes(film.showLikes());
-
+        dto.setDirectors(film.getDirectors());
         return dto;
     }
 
@@ -52,7 +53,8 @@ public class FilmMapper {
             film.setDuration(request.getDuration());
         }
         if (request.hasGenre()) {
-            film.setGenres(request.getGenres());
+            Set<Genre> uniqueGenres = request.getGenres().stream().collect(Collectors.toSet());
+            film.setGenres(uniqueGenres.stream().toList());
         }
         if (request.hasReleaseDate()) {
             film.setReleaseDate(request.getReleaseDate());
@@ -62,6 +64,9 @@ public class FilmMapper {
         }
         if (request.hasLikes()) {
             film.setLikes(request.getLikes());
+        }
+        if (request.getDirectors() != null) {
+            film.setDirectors(request.getDirectors());
         }
 
         return film;

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.film.db;
+package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public class MpaStorage extends BaseRepository<MpaName> {
-    private static final String FIND_MPA_QUERY = "SELECT * FROM ratings";
+    private static final String FIND_MPA_QUERY = "SELECT * FROM ratings ORDER BY id";
     private static final String FIND_GET_MPA_QUERY = "SELECT * FROM ratings WHERE id =?";
 
     public MpaStorage(JdbcTemplate jdbc, RowMapper<MpaName> mapper) {

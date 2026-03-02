@@ -1,11 +1,11 @@
 package ru.yandex.practicum.filmorate.storage.user.db;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.user.DbUserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -21,6 +21,7 @@ class DbUserStorageTest {
 
     private User testUser;
     private User friendUser;
+
 
 
     @Test
@@ -97,13 +98,19 @@ class DbUserStorageTest {
         newUser.setLogin("new_user");
         newUser.setName("New User");
         newUser.setBirthday(LocalDate.of(1995, 3, 20));
+        Long id = userStorage.createUser(newUser).getId();
 
-        User user1 = userStorage.createUser(newUser);
-        userStorage.saveFriend(1L, user1.getId());
+        User newUser2 = new User();
+        newUser.setEmail("two@test.com");
+        newUser.setLogin("new_user2");
+        newUser.setName("New User2");
+        newUser.setBirthday(LocalDate.of(1995, 3, 20));
+        Long id2 = userStorage.createUser(newUser2).getId();
 
-        User user2 = userStorage.getUser(1L).get();
-        assertThat(user2.getFriends())
-                .anyMatch(user -> user.getId().equals(user1.getId()));
+        userStorage.saveFriend(id, id2);
+
+        assertThat(userStorage.getFriends(id))
+                .anyMatch(user -> user.getId().equals(id2));
     }
 
     @Test

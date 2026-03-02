@@ -9,7 +9,7 @@ public interface FilmStorage {
 
     Optional<Film> findFilm(Long id);
 
-    Collection<Film> getFilms();
+    Collection<Film> getFilms(Integer genre, Integer year);
 
     Film updateFilm(Film film);
 
@@ -18,4 +18,14 @@ public interface FilmStorage {
     void addLike(Long filmId, Long userId);
 
     void removeLike(Long filmId, Long userId);
+
+    Collection<Film> getFilmsByDirector(long directorId, String sortBy);
+
+    Collection<Film> getRecommendations(Long userId);
+
+    void deleteFilm(Long id);
+
+    Collection<Film> getCommonFilms(Long userId, Long filmId);
+
+    Collection<Film> searchFilms(String query, String by);
 }

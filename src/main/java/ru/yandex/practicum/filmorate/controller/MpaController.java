@@ -30,9 +30,9 @@ public class MpaController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<MpaName> getMpa(@PathVariable ("id") int id) {
+    public ResponseEntity<MpaName> getMpa(@PathVariable("id") int id) {
         MpaName mpa = mpaService.getMpa(id);
         log.info("Rating by id{} is {}", id, mpa.getName());
-        return new ResponseEntity<>(mpa,HttpStatus.OK);
+        return new ResponseEntity<>(mpa, HttpStatus.OK);
     }
 }

@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.MpaName;
-import ru.yandex.practicum.filmorate.storage.film.db.MpaStorage;
+import ru.yandex.practicum.filmorate.storage.film.MpaStorage;
 
 import java.util.List;
 
